@@ -16,25 +16,17 @@
 
 package com.cxxwl96.updater.api.model;
 
-import java.util.List;
-
-import lombok.Data;
-import lombok.experimental.Accessors;
-
 /**
- * UpdateModel
+ * FileOption
  *
  * @author cxxwl96
- * @since 2024/3/30 23:13
+ * @since 2024/3/31 00:40
  */
-@Data
-@Accessors(chain = true)
-public class UpdateModel {
-    private String appName;
-
-    private String version;
-
-    private boolean downloadAll;
-
-    private List<FileModel> files;
+public enum FileOption {
+    // 添加
+    ADD,
+    // 删除
+    DELETE,
+    // 覆盖（修改）
+    OVERWRITE
 }

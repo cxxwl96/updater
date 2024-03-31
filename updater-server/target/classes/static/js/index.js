@@ -14,32 +14,29 @@
  * limitations under the License.
  */
 
-package com.cxxwl96.updater.api.model;
+var defaultFontColor = '#3a3a3a';
 
-import lombok.Data;
-import lombok.experimental.Accessors;
-
-/**
- * FileModel
- *
- * @author cxxwl96
- * @since 2024/3/30 23:17
- */
-@Data
-@Accessors(chain = true)
-public class FileModel {
-    // 文件操作
-    private FileOption option;
-
-    // 文件相对应用根目录的路径
-    private String path;
-
-    // 文件名
-    private String name;
-
-    // 文件大小
-    private long size;
-
-    // 友好的文件大小
-    private String prettifySize;
+var themed = [
+    {
+        bg: '#222728',
+        color: '#9e9e9e'
+    },
+    {
+        bg: '#5D5E69',
+        color: '#ffffff'
+    },
+    {
+        bg: '#CCCCFF'
+    },
+    {
+        bg: '#CCFFFF'
+    },
+    {
+        bg: '#99CCFF'
+    },
+]
+var page = $('.page');
+for (let i = 0; i < page.length; i++) {
+    $(page[i]).css('background-color', themed[i].bg);
+    $(page[i]).css('color', themed[i].color || defaultFontColor);
 }

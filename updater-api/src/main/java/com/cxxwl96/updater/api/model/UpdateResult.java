@@ -16,30 +16,29 @@
 
 package com.cxxwl96.updater.api.model;
 
+import java.util.List;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * FileModel
+ * UpdateModel
  *
  * @author cxxwl96
- * @since 2024/3/30 23:17
+ * @since 2024/3/30 23:13
  */
 @Data
 @Accessors(chain = true)
-public class FileModel {
-    // 文件操作
-    private FileOption option;
+public class UpdateResult {
+    // 应用名称
+    private String appName;
 
-    // 文件相对应用根目录的路径
-    private String path;
+    // 应用版本
+    private String version;
 
-    // 文件名
-    private String name;
+    // 是否需要更新
+    private boolean needUpdate;
 
-    // 文件大小
-    private long size;
-
-    // 友好的文件大小
-    private String prettifySize;
+    // 需要下载的应用文件列表。needUpdate=true时不为空
+    private List<FileModel> files;
 }

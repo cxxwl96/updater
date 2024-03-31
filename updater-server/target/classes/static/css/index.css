@@ -13,33 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+* {
+    padding: 0;
+    margin: 0;
+}
 
-package com.cxxwl96.updater.api.model;
+.page {
+    width: 100%;
+    height: 100vh;
+}
 
-import lombok.Data;
-import lombok.experimental.Accessors;
+.page-center {
+    height: 100vh;
+    /*垂直居中*/
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    /*水平居中*/
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
 
-/**
- * FileModel
- *
- * @author cxxwl96
- * @since 2024/3/30 23:17
- */
-@Data
-@Accessors(chain = true)
-public class FileModel {
-    // 文件操作
-    private FileOption option;
+.page-line {
+    text-align: center;
+    font-size: 30px;
+}
 
-    // 文件相对应用根目录的路径
-    private String path;
+.el-form-item__label {
+    color: #fff;
+}
 
-    // 文件名
-    private String name;
-
-    // 文件大小
-    private long size;
-
-    // 友好的文件大小
-    private String prettifySize;
+.el-upload-list__item-name {
+    color: red;
 }

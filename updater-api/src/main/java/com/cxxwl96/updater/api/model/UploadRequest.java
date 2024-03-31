@@ -16,30 +16,24 @@
 
 package com.cxxwl96.updater.api.model;
 
+import javax.validation.constraints.NotBlank;
+
 import lombok.Data;
-import lombok.experimental.Accessors;
 
 /**
- * FileModel
+ * UploadRequest
  *
  * @author cxxwl96
- * @since 2024/3/30 23:17
+ * @since 2024/3/31 17:29
  */
 @Data
-@Accessors(chain = true)
-public class FileModel {
-    // 文件操作
-    private FileOption option;
+public class UploadRequest {
 
-    // 文件相对应用根目录的路径
-    private String path;
+    @NotBlank(message = "应用名称为空")
+    private String appName;
 
-    // 文件名
-    private String name;
+    @NotBlank(message = "应用版本为空")
+    private String version;
 
-    // 文件大小
-    private long size;
-
-    // 友好的文件大小
-    private String prettifySize;
+    private boolean latest;
 }
