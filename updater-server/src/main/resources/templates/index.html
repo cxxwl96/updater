@@ -1,71 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Updater Index</title>
     <link href="/favicon.ico" rel="icon"/>
-    <link href="/element-ui/index.css" rel="stylesheet">
-    <link href="/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="/element-ui/index.css">
+    <link rel="stylesheet" href="/swiper/swiper-bundle.min.css">
+    <link rel="stylesheet" href="/css/index.css">
 </head>
+
 <body>
-<div id="app">
-    <div class="page">
-        <div class="page-center">
-            <p class="page-line">Updater is running</p>
+<!-- Swiper -->
+<div class="swiper">
+    <div class="swiper-wrapper">
+        <div class="swiper-slide">
+            <div class="page-center">
+                <p style="text-align: center;font-size: 3.5em;">Updater is running</p>
+            </div>
+        </div>
+        <div class="swiper-slide">
+            <div class="page-center" id="app-upload">
+                <el-row>
+                    <h2 style="text-align: center; margin: 20px 0;">上传APP文件</h2>
+                    <el-form :model="formData" label-width="100px">
+                        <el-form-item label="应用名称">
+                            <el-input size="mini" v-model="formData.appName"></el-input>
+                        </el-form-item>
+                        <el-form-item label="应用版本">
+                            <el-input size="mini" v-model="formData.version"/>
+                        </el-form-item>
+                        <el-form-item label="是否Latest">
+                            <el-switch v-model="formData.latest"></el-switch>
+                        </el-form-item>
+                        <el-form-item label="应用文件">
+                            <el-upload
+                                    :auto-upload="false"
+                                    :data="formData"
+                                    :headers="{'Access-Control-Allow-Origin': '*'}"
+                                    :limit="1"
+                                    :on-change="upload.onChange"
+                                    :on-error="upload.onError"
+                                    :on-success="upload.onSuccess"
+                                    accept=".zip"
+                                    action="/upload"
+                                    drag
+                                    ref="upload"
+                                    show-file-list
+                            >
+                                <i class="el-icon-upload"></i>
+                                <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                                <div class="el-upload__tip" slot="tip" style="color: #fff;">
+                                    只能上传zip文件，不包含应用根文件夹
+                                </div>
+                            </el-upload>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button @click="upload.submit" style="width: 100%" type="primary">上传文件
+                            </el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-row>
+            </div>
         </div>
     </div>
-    <div class="page">
-        <div class="page-center">
-            <el-row>
-                <h3 style="text-align: center; margin: 20px 0;">上传APP文件</h3>
-                <el-form :model="formData" label-width="100px">
-                    <el-form-item label="应用名称">
-                        <el-input size="mini" v-model="formData.appName"></el-input>
-                    </el-form-item>
-                    <el-form-item label="应用版本">
-                        <el-input size="mini" v-model="formData.version"/>
-                    </el-form-item>
-                    <el-form-item label="是否Latest">
-                        <el-switch v-model="formData.latest"></el-switch>
-                    </el-form-item>
-                    <el-form-item label="应用文件">
-                        <el-upload
-                                :auto-upload="false"
-                                :data="formData"
-                                :headers="{'Access-Control-Allow-Origin': '*'}"
-                                :limit="1"
-                                :on-change="upload.onChange"
-                                :on-error="upload.onError"
-                                :on-success="upload.onSuccess"
-                                accept=".zip"
-                                action="/upload"
-                                drag
-                                ref="upload"
-                                show-file-list
-                        >
-                            <i class="el-icon-upload"></i>
-                            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                            <div class="el-upload__tip" slot="tip" style="color: #fff;">
-                                只能上传zip文件，不包含应用根文件夹
-                            </div>
-                        </el-upload>
-                    </el-form-item>
-                    <el-form-item>
-                        <el-button @click="upload.submit" style="width: 100%" type="primary">上传文件</el-button>
-                    </el-form-item>
-                </el-form>
-            </el-row>
-        </div>
-    </div>
+    <div class="swiper-pagination"></div>
 </div>
-</body>
 <script src="/vue/vue.js"></script>
 <script src="/element-ui/index.js"></script>
+<script src="/swiper/swiper-bundle.min.js"></script>
 <script src="/jquery/jquery.min.js"></script>
 <script src="/js/index.js"></script>
 <script type="application/javascript">
     var vue = new Vue({
-        el: '#app',
+        el: '#app-upload',
         data: function () {
             return {
                 formData: {
@@ -151,6 +159,8 @@
                 }
             }
         }
-    })
+    });
 </script>
+</body>
+
 </html>

@@ -18,8 +18,8 @@
     margin: 0;
 }
 
-.page {
-    width: 100%;
+.swiper {
+    width: 100vw;
     height: 100vh;
 }
 
@@ -35,11 +35,6 @@
     transform: translateX(-50%);
 }
 
-.page-line {
-    text-align: center;
-    font-size: 30px;
-}
-
 .el-form-item__label {
     color: #fff;
 }
@@ -47,3 +42,4 @@
 .el-upload-list__item-name {
     color: red;
 }
+

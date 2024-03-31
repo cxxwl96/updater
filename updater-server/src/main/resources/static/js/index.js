@@ -14,9 +14,19 @@
  * limitations under the License.
  */
 
+var swiper = new Swiper(".swiper", {
+    direction: 'vertical',
+    cssMode: true,
+    mousewheel: true,
+    keyboard: true,
+    pagination: {
+        el: ".swiper-pagination",
+    },
+});
+
 var defaultFontColor = '#3a3a3a';
 
-var themed = [
+var themeds = [
     {
         bg: '#222728',
         color: '#9e9e9e'
@@ -35,8 +45,9 @@ var themed = [
         bg: '#99CCFF'
     },
 ]
-var page = $('.page');
+var page = $('.swiper-slide');
 for (let i = 0; i < page.length; i++) {
-    $(page[i]).css('background-color', themed[i].bg);
-    $(page[i]).css('color', themed[i].color || defaultFontColor);
+    var themed = themeds[i % themeds.length];
+    $(page[i]).css('background-color', themed?.bg);
+    $(page[i]).css('color', themed?.color || defaultFontColor);
 }
