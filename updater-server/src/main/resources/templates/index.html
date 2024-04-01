@@ -25,10 +25,10 @@
                     <h2 style="text-align: center; margin: 20px 0;">上传APP文件</h2>
                     <el-form :model="formData" label-width="100px">
                         <el-form-item label="应用名称">
-                            <el-input size="mini" v-model="formData.appName"></el-input>
+                            <el-input size="mini" v-model="formData.appName" placeholder="上传的文件名满足 '应用名.应用版本.zip' 自动解析"/>
                         </el-form-item>
                         <el-form-item label="应用版本">
-                            <el-input size="mini" v-model="formData.version"/>
+                            <el-input size="mini" v-model="formData.version" placeholder="上传的文件名满足 '应用名.应用版本.zip' 自动解析"/>
                         </el-form-item>
                         <el-form-item label="是否Latest">
                             <el-switch v-model="formData.latest"></el-switch>
