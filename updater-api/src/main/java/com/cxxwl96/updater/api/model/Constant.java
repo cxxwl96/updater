@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, cxxwl96.com (cxxwl96@sina.com).
+ * Copyright (c) 2021-${YEAR}, cxxwl96.com (cxxwl96@sina.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,12 @@
 
 package com.cxxwl96.updater.api.model;
 
-import javax.validation.constraints.NotBlank;
-
-import lombok.Data;
-import lombok.experimental.Accessors;
-
 /**
- * UpdateRequest
+ * Constant
  *
  * @author cxxwl96
- * @since 2024/3/30 23:51
+ * @since 2024/04/01 23:38
  */
-@Data
-@Accessors(chain = true)
-public class UpdateRequest {
-    // 应用名称
-    @NotBlank(message = "应用名称为空")
-    private String appName;
-
-    // 应用版本
-    @NotBlank(message = "应用版本为空")
-    private String version;
+public class Constant {
+    public static final String CHECKLIST = "CHECKLIST";
 }

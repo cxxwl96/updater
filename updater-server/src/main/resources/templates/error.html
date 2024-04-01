@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>错误</title>
+</head>
+<body>
+<ul>
+    <li th:text="${status}"></li>
+    <li th:text="${error}"></li>
+    <li th:text="${message}"></li>
+    <li th:text="${path}"></li>
+    <li th:text="${#dates.format(timestamp,'yyyy-MM-dd HH:mm:ss')}"></li>
+</ul>
+</body>
+</html>

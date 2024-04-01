@@ -17,11 +17,12 @@
 package com.cxxwl96.updater.server.service;
 
 import com.cxxwl96.updater.api.model.Result;
-import com.cxxwl96.updater.api.model.UpdateRequest;
-import com.cxxwl96.updater.api.model.UpdateResult;
+import com.cxxwl96.updater.api.model.UpdateModel;
 import com.cxxwl96.updater.api.model.UploadRequest;
 
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * UpdateService
@@ -33,11 +34,25 @@ public interface UpdateService {
     /**
      * 上传应用
      *
-     * @param uploadRequest request
+     * @param request request
      * @param multipartFile multipartFile
      * @return result
      */
-    Result<?> upload(UploadRequest uploadRequest, MultipartFile multipartFile);
+    Result<?> upload(UploadRequest request, MultipartFile multipartFile);
 
-    Result<UpdateResult> checkUpdate(UpdateRequest updateRequest);
+    /**
+     * 检查更新
+     *
+     * @param model model
+     * @return result
+     */
+    Result<UpdateModel> checkUpdate(UpdateModel model);
+
+    /**
+     * 下载最新应用
+     *
+     * @param appName app name
+     * @param response response
+     */
+    void downloadLatest(String appName, HttpServletResponse response);
 }

@@ -18,27 +18,29 @@ package com.cxxwl96.updater.api.model;
 
 import java.util.List;
 
+import javax.validation.constraints.NotBlank;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * UpdateModel
+ * UpdateRequest
  *
  * @author cxxwl96
- * @since 2024/3/30 23:13
+ * @since 2024/3/30 23:51
  */
 @Data
 @Accessors(chain = true)
-public class UpdateResult {
+public class UpdateModel {
     // 应用名称
+    @NotBlank(message = "应用名称为空")
     private String appName;
 
     // 应用版本
+    @NotBlank(message = "应用版本为空")
     private String version;
 
-    // 是否需要更新
-    private boolean needUpdate;
-
-    // 需要下载的应用文件列表。needUpdate=true时不为空
+    // TODO 改名
+    // 应用文件列表
     private List<FileModel> files;
 }

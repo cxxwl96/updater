@@ -16,8 +16,16 @@
 
 package com.cxxwl96.updater.client;
 
+import com.alibaba.fastjson.JSON;
+import com.cxxwl96.updater.api.model.UpdateModel;
+import com.cxxwl96.updater.api.utils.ChecksumUtil;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.io.File;
+
+import cn.hutool.core.io.FileUtil;
 
 /**
  * MainClass
@@ -29,5 +37,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MainClass {
     public static void main(String[] args) {
         SpringApplication.run(MainClass.class, args);
+        UpdateModel updateModel = ChecksumUtil.parseChecksum(
+            FileUtil.readUtf8String(new File("AppRepository/auto-answer/1.0.0/Content/CHECKLIST")));
+
+        System.out.println(JSON.toJSONString(updateModel));
     }
 }

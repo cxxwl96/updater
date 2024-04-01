@@ -17,8 +17,7 @@
 package com.cxxwl96.updater.server.controller;
 
 import com.cxxwl96.updater.api.model.Result;
-import com.cxxwl96.updater.api.model.UpdateRequest;
-import com.cxxwl96.updater.api.model.UpdateResult;
+import com.cxxwl96.updater.api.model.UpdateModel;
 import com.cxxwl96.updater.api.model.UploadRequest;
 import com.cxxwl96.updater.server.service.UpdateService;
 
@@ -31,9 +30,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-
-import cn.hutool.http.server.HttpServerResponse;
 
 /**
  * UpdateController
@@ -48,22 +46,22 @@ public class UpdateController {
     private UpdateService updateService;
 
     @PostMapping("/upload")
-    public Result<?> upload(@Valid UploadRequest uploadRequest, MultipartFile file) {
-        return updateService.upload(uploadRequest, file);
+    public Result<?> upload(@Valid UploadRequest request, MultipartFile file) {
+        return updateService.upload(request, file);
     }
 
     @GetMapping("/download/{appName}")
-    public void downloadLatest(@PathVariable String appName, HttpServerResponse response) {
-
+    public void downloadLatest(@PathVariable String appName, HttpServletResponse response) {
+        updateService.downloadLatest(appName, response);
     }
 
     @PostMapping("/checkUpdate")
-    public Result<UpdateResult> checkUpdate(@RequestBody @Valid UpdateRequest updateRequest) {
-        return updateService.checkUpdate(updateRequest);
+    public Result<UpdateModel> checkUpdate(@RequestBody @Valid UpdateModel model) {
+        return updateService.checkUpdate(model);
     }
 
     @PostMapping("/update")
-    public Result<UpdateResult> update(@RequestBody @Valid UpdateRequest updateRequest) {
+    public Result<UpdateModel> update(@RequestBody @Valid UpdateModel model) {
 
         return null;
     }

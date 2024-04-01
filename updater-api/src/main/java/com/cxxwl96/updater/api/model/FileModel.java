@@ -37,9 +37,6 @@ public class FileModel {
     // 文件名
     private String name;
 
-    // 文件大小
-    private long size;
-
-    // 友好的文件大小
-    private String prettifySize;
+    // 文件crc32
+    private Long crc32;
 }
