@@ -16,16 +16,16 @@
 
 package com.cxxwl96.updater.server.service.impl;
 
+import com.cxxwl96.updater.api.enums.FileOption;
 import com.cxxwl96.updater.api.exception.BadRequestException;
-import com.cxxwl96.updater.api.model.Constant;
 import com.cxxwl96.updater.api.model.FileModel;
-import com.cxxwl96.updater.api.model.FileOption;
 import com.cxxwl96.updater.api.model.Result;
 import com.cxxwl96.updater.api.model.UpdateModel;
 import com.cxxwl96.updater.api.model.UploadRequest;
 import com.cxxwl96.updater.api.utils.ChecksumUtil;
-import com.cxxwl96.updater.server.AppConfig;
+import com.cxxwl96.updater.server.config.AppConfig;
 import com.cxxwl96.updater.server.service.UpdateService;
+import com.cxxwl96.updater.server.utils.AppRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +64,9 @@ public class UpdateServiceImpl implements UpdateService {
     @Autowired
     private AppConfig appConfig;
 
+    @Autowired
+    private AppRepository appRepository;
+
     /**
      * 上传应用
      *
@@ -75,17 +77,16 @@ public class UpdateServiceImpl implements UpdateService {
     @Override
     public Result<?> upload(UploadRequest request, MultipartFile multipartFile) {
         // 仅支持zip文件
-        Assert.isTrue(StrUtil.endWith(multipartFile.getOriginalFilename(), ".zip"),
-            () -> new BadRequestException("仅支持zip文件上传"));
+        Assert.isTrue(StrUtil.endWith(multipartFile.getOriginalFilename(), ".zip"), () -> new BadRequestException("仅支持zip文件上传"));
 
         String appName = request.getAppName();
         String version = request.getVersion();
 
         // 检查版本是否存在
-        File versionFile = getVersionFile(appName, version);
+        File versionFile = appRepository.getVersionFile(appName, version, false);
         Assert.isFalse(versionFile.exists(), () -> new BadRequestException("已存在该版本的应用"));
         // 创建应用内容文件夹
-        File contentFile = getContentFile(appName, version);
+        File contentFile = appRepository.getContentFile(appName, version, false);
         FileUtil.mkdir(contentFile);
 
         try {
@@ -93,7 +94,7 @@ public class UpdateServiceImpl implements UpdateService {
             File originalZipFile = FileUtil.newFile(versionFile.getPath() + "/" + multipartFile.getOriginalFilename());
 
             // 保存文件
-            log.info("Upload file to {}", originalZipFile.getPath());
+            log.info("Upload file to '{}'", originalZipFile.getPath());
             multipartFile.transferTo(originalZipFile.getAbsoluteFile());
 
             // 解压
@@ -113,22 +114,22 @@ public class UpdateServiceImpl implements UpdateService {
             // 计算校验文件并保存
             log.info("Checksum file '{}'", contentFile.getPath());
             String checksum = ChecksumUtil.checksum(appName, version, contentFile);
-            FileUtil.writeUtf8String(checksum, getChecksumFile(appName, version));
+            FileUtil.writeUtf8String(checksum, appRepository.getChecksumFile(appName, version, false));
 
             // 重新压缩zip
-            File zipFile = getZipFile(appName, version);
+            File zipFile = appRepository.getZipFile(appName, version, false);
             log.info("Re-zip file '{}'", zipFile.getPath());
             ZipUtil.zip(contentFile.getAbsolutePath(), zipFile.getAbsolutePath());
 
             // 更新latest
             if (request.isLatest()) {
                 log.info("Update latest file to '{}'", version);
-                FileUtil.writeUtf8String(version, getLatestFile(appName));
+                FileUtil.writeUtf8String(version, appRepository.getLatestFile(appName, false));
             }
             return Result.success("上传成功");
         } catch (IOException exception) {
             log.error(exception.getMessage(), exception);
-            return Result.failed("上传失败：" + exception.getMessage());
+            return Result.failed("上传失败: " + exception.getMessage());
         }
     }
 
@@ -141,13 +142,11 @@ public class UpdateServiceImpl implements UpdateService {
     @Override
     public Result<UpdateModel> checkUpdate(UpdateModel model) {
         String appName = model.getAppName();
-        File latestFile = getLatestFile(appName);
-        Assert.isTrue(latestFile.exists(), () -> new BadRequestException("没有找到最新版本"));
+        File latestFile = appRepository.getLatestFile(appName, true);
 
         // 检查更新
         String latestVersion = FileUtil.readUtf8String(latestFile).trim();
-        File latestChecksumFile = getChecksumFile(appName, latestVersion);
-        Assert.isTrue(latestChecksumFile.exists(), () -> new BadRequestException("没有找到校验文件"));
+        File latestChecksumFile = appRepository.getChecksumFile(appName, latestVersion, true);
 
         String checksum = FileUtil.readUtf8String(latestChecksumFile);
         UpdateModel latestUpdateModel = ChecksumUtil.parseChecksum(checksum);
@@ -165,12 +164,31 @@ public class UpdateServiceImpl implements UpdateService {
      */
     @Override
     public void downloadLatest(String appName, HttpServletResponse response) {
-        Assert.isTrue(getRootFile(appName).exists(), () -> new BadRequestException("应用不存在"));
+        appRepository.getRootFile(appName, true);
 
-        File appZipFile = getLatestAppZipFile(appName);
-        Assert.isTrue(appZipFile.exists(), () -> new BadRequestException("没有找到最新版本文件"));
+        File appZipFile = appRepository.getLatestAppZipFile(appName, true);
 
         dealDownload(response, appZipFile);
+    }
+
+    /**
+     * 更新应用单文件
+     *
+     * @param model model
+     * @param response response
+     */
+    @Override
+    public void updateSingleFile(UpdateModel model, HttpServletResponse response) {
+        appRepository.getRootFile(model.getAppName(), true);
+        Assert.notEmpty(model.getFiles(), () -> new BadRequestException("请选择需要更新的应用文件"));
+        Assert.isTrue(model.getFiles().size() == 1, () -> new BadRequestException("仅支持单文件更新"));
+        String appName = model.getAppName();
+        String version = model.getVersion();
+        String path = model.getFiles().get(0).getPath();
+
+        File singleFile = appRepository.getSingleInContentFile(appName, version, path, true);
+
+        dealDownload(response, singleFile);
     }
 
     private void delIgnoredFiles(List<String> ignoredFiles, File file) {
@@ -193,13 +211,10 @@ public class UpdateServiceImpl implements UpdateService {
         // 用户file
         List<FileModel> files = model.getFiles();
         if (CollUtil.isEmpty(files)) {
-            return latestUpdateModel.getFiles()
-                .stream()
-                .map(file -> file.setOption(FileOption.ADD))
-                .collect(Collectors.toList());
+            return latestUpdateModel.getFiles().stream().map(file -> file.setOption(FileOption.ADD)).collect(Collectors.toList());
         }
         // 系统file
-        ArrayList<FileModel> latestFiles = CollUtil.newArrayList(latestUpdateModel.getFiles());
+        List<FileModel> latestFiles = CollUtil.newArrayList(latestUpdateModel.getFiles());
 
         // 转为map
         Map<String, FileModel> fileMap = new HashMap<>();
@@ -240,45 +255,12 @@ public class UpdateServiceImpl implements UpdateService {
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setHeader("content-type", "application/x-zip-compressed;charset=UTF-8");
             response.setHeader("Content-Disposition", contentDisposition);
-            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Allow-Origin", "*"); // 实现跨域下载
 
             IoUtil.copy(is, os);
         } catch (IOException exception) {
-            log.error(exception.getMessage(), exception);
+            log.error("下载文件异常失败", exception);
             throw new BadRequestException("下载文件异常失败");
         }
     }
-
-    private File getRootFile(String appName) {
-        return FileUtil.newFile(String.format("%s/%s", appConfig.getRepository(), appName));
-
-    }
-
-    private File getVersionFile(String appName, String version) {
-        return FileUtil.newFile(String.format("%s/%s", getRootFile(appName), version));
-    }
-
-    private File getContentFile(String appName, String version) {
-        return FileUtil.newFile(String.format("%s/Content", getVersionFile(appName, version)));
-    }
-
-    private File getZipFile(String appName, String version) {
-        return FileUtil.newFile(String.format("%s/%s.zip", getVersionFile(appName, version), appName));
-    }
-
-    private File getChecksumFile(String appName, String version) {
-        return FileUtil.newFile(String.format("%s/%s", getContentFile(appName, version), Constant.CHECKLIST));
-    }
-
-    private File getLatestFile(String appName) {
-        return FileUtil.newFile(String.format("%s/LATEST", getRootFile(appName)));
-    }
-
-    private File getLatestAppZipFile(String appName) {
-        File latestFile = getLatestFile(appName);
-        Assert.isTrue(latestFile.exists(), () -> new BadRequestException("没有找到最新版本"));
-        String latestVersion = FileUtil.readUtf8String(latestFile).trim();
-        return getZipFile(appName, latestVersion);
-    }
-
 }

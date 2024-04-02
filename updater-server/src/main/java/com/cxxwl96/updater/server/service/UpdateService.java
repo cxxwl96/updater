@@ -55,4 +55,12 @@ public interface UpdateService {
      * @param response response
      */
     void downloadLatest(String appName, HttpServletResponse response);
+
+    /**
+     * 更新应用单文件
+     *
+     * @param model model
+     * @param response response
+     */
+    void updateSingleFile(UpdateModel model, HttpServletResponse response);
 }

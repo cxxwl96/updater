@@ -16,6 +16,11 @@
 
 package com.cxxwl96.updater.api.model;
 
+import com.cxxwl96.updater.api.enums.FileOption;
+import com.cxxwl96.updater.api.enums.FileType;
+
+import javax.validation.constraints.NotBlank;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -31,7 +36,11 @@ public class FileModel {
     // 文件操作
     private FileOption option;
 
+    // 文件类型
+    private FileType type;
+
     // 文件相对应用根目录的路径
+    @NotBlank(message = "文件路径为空")
     private String path;
 
     // 文件名
@@ -39,4 +48,10 @@ public class FileModel {
 
     // 文件crc32
     private Long crc32;
+
+    // 文件大小。单位：Bit
+    private Long size;
+
+    // 友好的文件大小
+    private String prettySize;
 }

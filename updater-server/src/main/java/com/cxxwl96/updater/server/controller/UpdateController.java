@@ -16,6 +16,7 @@
 
 package com.cxxwl96.updater.server.controller;
 
+import com.cxxwl96.updater.api.model.FileModel;
 import com.cxxwl96.updater.api.model.Result;
 import com.cxxwl96.updater.api.model.UpdateModel;
 import com.cxxwl96.updater.api.model.UploadRequest;
@@ -30,8 +31,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+
+import cn.hutool.core.collection.CollUtil;
 
 /**
  * UpdateController
@@ -50,19 +54,27 @@ public class UpdateController {
         return updateService.upload(request, file);
     }
 
-    @GetMapping("/download/{appName}")
-    public void downloadLatest(@PathVariable String appName, HttpServletResponse response) {
-        updateService.downloadLatest(appName, response);
-    }
-
     @PostMapping("/checkUpdate")
     public Result<UpdateModel> checkUpdate(@RequestBody @Valid UpdateModel model) {
         return updateService.checkUpdate(model);
     }
 
-    @PostMapping("/update")
-    public Result<UpdateModel> update(@RequestBody @Valid UpdateModel model) {
+    @GetMapping("/download/{appName}")
+    public void downloadLatest(@PathVariable String appName, HttpServletResponse response) {
+        updateService.downloadLatest(appName, response);
+    }
 
-        return null;
+    @GetMapping("/update/{appName}/{version}/**")
+    public void update(@PathVariable String appName, @PathVariable String version, HttpServletRequest request,
+        HttpServletResponse response) {
+        String baseUri = String.format("/update/%s/%s", appName, version);
+        String path = request.getRequestURI().substring(baseUri.length());
+        String pathRelativeToContent = path.startsWith("/") ? path.substring(1) : path;
+
+        UpdateModel updateModel = new UpdateModel().setAppName(appName)
+            .setVersion(version)
+            .setFiles(CollUtil.newArrayList(new FileModel().setPath(pathRelativeToContent)));
+
+        updateService.updateSingleFile(updateModel, response);
     }
 }

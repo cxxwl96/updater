@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-${YEAR}, cxxwl96.com (cxxwl96@sina.com).
+ * Copyright (c) 2021-2024, cxxwl96.com (cxxwl96@sina.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package com.cxxwl96.updater.api.model;
+package com.cxxwl96.updater.api.enums;
 
 /**
- * Constant
+ * FileOption
  *
  * @author cxxwl96
- * @since 2024/04/01 23:38
+ * @since 2024/3/31 00:40
  */
-public class Constant {
-    public static final String LATEST = "LATEST";
-
-    public static final String CHECKLIST = "CHECKLIST";
+public enum FileOption {
+    // 添加
+    ADD,
+    // 删除
+    DELETE,
+    // 覆盖（修改）
+    OVERWRITE
 }

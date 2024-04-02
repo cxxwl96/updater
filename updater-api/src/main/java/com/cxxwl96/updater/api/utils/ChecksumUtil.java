@@ -57,10 +57,7 @@ public class ChecksumUtil {
         if (file.isFile()) {
             fileModels = CollUtil.newArrayList(crc32FileModel(file));
         } else {
-            fileModels = FileUtil.loopFiles(file)
-                .stream()
-                .map(ChecksumUtil::crc32FileModel)
-                .collect(Collectors.toList());
+            fileModels = FileUtil.loopFiles(file).stream().map(ChecksumUtil::crc32FileModel).collect(Collectors.toList());
         }
         StringBuilder sb = new StringBuilder();
         sb.append("Power by http://www.cxxwl96.com")
@@ -101,15 +98,14 @@ public class ChecksumUtil {
             throw new BadRequestException("校验文件格式错误");
         }
         List<FileModel> fileModels = CollUtil.newArrayList();
-        while (scanner.hasNext()) {
+        while (scanner.hasNextLine()) {
             try {
                 String line = scanner.nextLine();
                 Assert.notBlank(line);
                 int i = line.lastIndexOf(SEPARATOR);
                 String path = line.substring(0, i);
                 long crc32 = Long.parseLong(line.substring(i + 1));
-                File file = FileUtil.newFile(path);
-                FileModel fileModel = newFileModel(file).setCrc32(crc32);
+                FileModel fileModel = newFileModel(FileUtil.newFile(path)).setCrc32(crc32);
                 fileModels.add(fileModel);
             } catch (IndexOutOfBoundsException | IllegalArgumentException exception) {
                 log.error(exception.getMessage(), exception);
@@ -124,10 +120,6 @@ public class ChecksumUtil {
     }
 
     private static FileModel newFileModel(File file) {
-        FileModel fileModel = new FileModel();
-        fileModel.setOption(null);
-        fileModel.setPath(file.getPath());
-        fileModel.setName(file.getName());
-        return fileModel;
+        return new FileModel().setOption(null).setPath(file.getPath()).setName(file.getName());
     }
 }

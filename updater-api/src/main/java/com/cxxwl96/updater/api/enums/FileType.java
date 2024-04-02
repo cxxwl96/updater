@@ -14,27 +14,18 @@
  * limitations under the License.
  */
 
-package com.cxxwl96.updater.server;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
-import java.util.Map;
-
-import lombok.Data;
+package com.cxxwl96.updater.api.enums;
 
 /**
- * Config
+ * FileType
  *
  * @author cxxwl96
- * @since 2024/4/1 00:09
+ * @since 2024/04/02 20:23
  */
-@Data
-@Configuration
-@ConfigurationProperties(prefix = "app")
-public class AppConfig {
-    private String repository;
-
-    private Map<String, List<String>> ignoreFiles;
+public enum FileType {
+    // 文件
+    FILE,
+    // 文件夹
+    DIRECTORY,
+    ;
 }

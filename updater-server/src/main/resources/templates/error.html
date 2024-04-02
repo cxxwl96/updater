@@ -6,11 +6,11 @@
 </head>
 <body>
 <ul>
-    <li th:text="${status}"></li>
-    <li th:text="${error}"></li>
-    <li th:text="${message}"></li>
-    <li th:text="${path}"></li>
-    <li th:text="${#dates.format(timestamp,'yyyy-MM-dd HH:mm:ss')}"></li>
+    <li th:text="'Staus: ' + ${status}"></li>
+    <li th:text="'Error: ' + ${error}"></li>
+    <li th:text="'Message: ' + ${message}"></li>
+    <li th:text="'Path: ' + ${path}"></li>
+    <li th:text="'Time: ' + ${#dates.format(timestamp,'yyyy-MM-dd HH:mm:ss')}"></li>
 </ul>
 </body>
 </html>

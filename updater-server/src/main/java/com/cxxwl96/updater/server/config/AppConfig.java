@@ -14,19 +14,27 @@
  * limitations under the License.
  */
 
-package com.cxxwl96.updater.api.model;
+package com.cxxwl96.updater.server.config;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
+import java.util.Map;
+
+import lombok.Data;
 
 /**
- * FileOption
+ * Config
  *
  * @author cxxwl96
- * @since 2024/3/31 00:40
+ * @since 2024/4/1 00:09
  */
-public enum FileOption {
-    // 添加
-    ADD,
-    // 删除
-    DELETE,
-    // 覆盖（修改）
-    OVERWRITE
+@Data
+@Configuration
+@ConfigurationProperties(prefix = "app")
+public class AppConfig {
+    private String repository;
+
+    private Map<String, List<String>> ignoreFiles;
 }

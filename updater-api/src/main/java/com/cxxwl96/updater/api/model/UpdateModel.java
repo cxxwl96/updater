@@ -18,6 +18,7 @@ package com.cxxwl96.updater.api.model;
 
 import java.util.List;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
 import lombok.Data;
@@ -40,7 +41,7 @@ public class UpdateModel {
     @NotBlank(message = "应用版本为空")
     private String version;
 
-    // TODO 改名
     // 应用文件列表
+    @Valid
     private List<FileModel> files;
 }
