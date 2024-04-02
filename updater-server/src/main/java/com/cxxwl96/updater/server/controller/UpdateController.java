@@ -71,10 +71,10 @@ public class UpdateController {
         String path = request.getRequestURI().substring(baseUri.length());
         String pathRelativeToContent = path.startsWith("/") ? path.substring(1) : path;
 
-        UpdateModel updateModel = new UpdateModel().setAppName(appName)
+        UpdateModel model = new UpdateModel().setAppName(appName)
             .setVersion(version)
             .setFiles(CollUtil.newArrayList(new FileModel().setPath(pathRelativeToContent)));
 
-        updateService.updateSingleFile(updateModel, response);
+        updateService.updateSingleFile(model, response);
     }
 }
