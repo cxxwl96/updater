@@ -2,6 +2,13 @@ server:
   port: 8080
 
 spring:
+  security:
+    user:
+      name: admin
+      password: 111
+    url-white-list:
+      - /**/*.html, /**/*.css, /**/*.js, /favicon.ico
+      - /download/**, /update/**
   servlet:
     multipart:
       enabled: true

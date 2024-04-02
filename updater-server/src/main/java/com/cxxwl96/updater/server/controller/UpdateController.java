@@ -19,17 +19,14 @@ package com.cxxwl96.updater.server.controller;
 import com.cxxwl96.updater.api.model.FileModel;
 import com.cxxwl96.updater.api.model.Result;
 import com.cxxwl96.updater.api.model.UpdateModel;
-import com.cxxwl96.updater.api.model.UploadRequest;
 import com.cxxwl96.updater.server.service.UpdateService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,25 +40,14 @@ import cn.hutool.core.collection.CollUtil;
  * @author cxxwl96
  * @since 2024/3/30 23:00
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 public class UpdateController {
     @Autowired
     private UpdateService updateService;
 
-    @PostMapping("/upload")
-    public Result<?> upload(@Valid UploadRequest request, MultipartFile file) {
-        return updateService.upload(request, file);
-    }
-
-    @PostMapping("/checkUpdate")
+    @PostMapping("/update/check")
     public Result<UpdateModel> checkUpdate(@RequestBody @Valid UpdateModel model) {
         return updateService.checkUpdate(model);
-    }
-
-    @GetMapping("/download/{appName}")
-    public void downloadLatest(@PathVariable String appName, HttpServletResponse response) {
-        updateService.downloadLatest(appName, response);
     }
 
     @GetMapping("/update/{appName}/{version}/**")
