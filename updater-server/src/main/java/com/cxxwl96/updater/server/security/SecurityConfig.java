@@ -45,7 +45,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             // 禁用CSRF（防止伪造的跨域攻击）
             .csrf().disable()
             // 登录配置
-            .formLogin().loginProcessingUrl(UrlConfig.LOGIN_URL)
+            .formLogin().loginPage(UrlConfig.LOGIN_PAGE) // 自定义登录页
+            .loginProcessingUrl(UrlConfig.LOGIN_URL) // 登录处理
+            .failureForwardUrl(UrlConfig.LOGIN_PAGE) // 认证失败之后 forward跳转
+            .failureUrl(UrlConfig.LOGIN_PAGE) // 认证失败之后 redirect跳转
             // 配置拦截规则
             .and().authorizeRequests() // 对请求执行认证与授权
             .antMatchers(urlConfig.getAllPermitUrls()) // 匹配白名单
@@ -54,4 +57,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .authenticated() // 要求是已经通过认证的
             .and().httpBasic();
     }
+
 }

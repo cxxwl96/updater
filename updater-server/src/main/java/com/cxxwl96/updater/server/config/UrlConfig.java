@@ -37,8 +37,10 @@ import lombok.Data;
 public class UrlConfig {
     public static final String LOGIN_URL = "/login";
 
+    public static final String LOGIN_PAGE = "/login.html";
+
     // 白名单列表
-    private static final Set<String> PERMIT_URLS = CollUtil.newHashSet(LOGIN_URL);
+    private static final Set<String> PERMIT_URLS = CollUtil.newHashSet(LOGIN_URL, LOGIN_PAGE);
 
     // 配置文件配置的白名单
     private String[] urlWhiteList;

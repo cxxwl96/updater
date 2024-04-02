@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+</head>
+<body>
+<form action="/login" method="post">
+    <input type="text" name="username">
+    <input type="text" name="password">
+    <button type="submit">登录</button>
+    <div th:with="exp=${#request.session.getAttribute('SPRING_SECURITY_LAST_EXCEPTION')}">
+        <p th:if="${exp}" th:text="${exp.message}"></p>
+    </div>
+</form>
+</body>
+</html>
