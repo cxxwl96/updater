@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.lang.Assert;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,6 +43,8 @@ public class ChecksumUtil {
     private static final String SEPARATOR = ":";
 
     private static final String LINE_BREAK = "\n";
+
+    private static final String CHECK_LIST_HEADER_FILE = "CheckListHeader";
 
     /**
      * 计算文件/文件夹crc32
@@ -60,14 +63,14 @@ public class ChecksumUtil {
             fileModels = FileUtil.loopFiles(file).stream().map(ChecksumUtil::crc32FileModel).collect(Collectors.toList());
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("Power by http://www.cxxwl96.com")
+        sb.append(ResourceUtil.readUtf8Str(CHECK_LIST_HEADER_FILE))
             .append(LINE_BREAK)
             .append(appName)
             .append(LINE_BREAK)
             .append(version)
             .append(LINE_BREAK);
         for (FileModel fileModel : fileModels) {
-            String path = fileModel.getPath().replace(file.getPath(), "");
+            String path = fileModel.getPath().substring(file.getPath().length());
             if (path.startsWith("/")) {
                 path = path.substring(1);
             } else if (path.startsWith("./")) {
@@ -85,17 +88,24 @@ public class ChecksumUtil {
      * @return UpdateModel
      */
     public static UpdateModel parseChecksum(String checksum) {
-        Assert.notBlank(checksum, () -> new BadRequestException("未找到校验文件"));
+        Assert.notBlank(checksum, () -> new BadRequestException("错误的校验文件"));
         Scanner scanner = new Scanner(checksum);
         UpdateModel updateModel = new UpdateModel();
         try {
-            scanner.nextLine(); // skip power by
+            // 跳过文件头
+            long count = ResourceUtil.getUtf8Reader(CHECK_LIST_HEADER_FILE).lines().count();
+            for (int i = 0; i < count; i++) {
+                scanner.nextLine();
+            }
             String appName = scanner.nextLine();
             String version = scanner.nextLine();
+            Assert.notBlank(appName);
+            Assert.notBlank(version);
             updateModel.setAppName(appName);
             updateModel.setVersion(version);
         } catch (NoSuchElementException exception) {
-            throw new BadRequestException("校验文件格式错误");
+            log.error(exception.getMessage(), exception);
+            throw new BadRequestException("错误的校验文件");
         }
         List<FileModel> fileModels = CollUtil.newArrayList();
         while (scanner.hasNextLine()) {
@@ -109,12 +119,13 @@ public class ChecksumUtil {
                 fileModels.add(fileModel);
             } catch (IndexOutOfBoundsException | IllegalArgumentException exception) {
                 log.error(exception.getMessage(), exception);
+                throw new BadRequestException("错误的校验文件");
             }
         }
         return updateModel.setFiles(fileModels);
     }
 
-    private static FileModel crc32FileModel(File file) {
+    public static FileModel crc32FileModel(File file) {
         long crc32 = FileUtil.checksumCRC32(file);
         return newFileModel(file).setCrc32(crc32);
     }

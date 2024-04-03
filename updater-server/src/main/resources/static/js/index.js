@@ -29,20 +29,20 @@ var defaultFontColor = '#3a3a3a';
 var themeds = [
     {
         bg: '#222728',
-        color: '#9e9e9e'
+        color: '#909399'
     },
     {
-        bg: '#5D5E69',
-        color: '#ffffff'
+        bg: '#606266',
+        color: '#FFFFFF'
     },
     {
-        bg: '#CCCCFF'
+        bg: '#909399'
     },
     {
-        bg: '#CCFFFF'
+        bg: '#C0C4CC'
     },
     {
-        bg: '#99CCFF'
+        bg: '#DCDFE6'
     },
 ]
 var page = $('.swiper-slide');

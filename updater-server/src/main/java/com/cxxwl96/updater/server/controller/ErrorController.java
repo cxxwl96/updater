@@ -31,6 +31,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.hutool.core.util.StrUtil;
+
 /**
  * ErrorController
  *
@@ -55,12 +57,7 @@ public class ErrorController extends BasicErrorController {
     public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
         HttpStatus status = getStatus(request);
 
-        String msg;
-        if (status.value() == 404) {
-            msg = "您访问的资源不存在";
-        } else {
-            msg = "未知错误";
-        }
+        String msg = StrUtil.isNotBlank(status.getReasonPhrase()) ? status.getReasonPhrase() : status.name();
         final HashMap<String, Object> body = new HashMap<>();
         body.put("code", status.value());
         body.put("msg", msg);

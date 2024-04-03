@@ -144,12 +144,15 @@ public class UpdateServiceImpl implements UpdateService {
         String appName = model.getAppName();
         File latestFile = appRepository.getLatestFile(appName, true);
 
-        // 检查更新
+        // 获取最新版本的checksum
         String latestVersion = FileUtil.readUtf8String(latestFile).trim();
         File latestChecksumFile = appRepository.getChecksumFile(appName, latestVersion, true);
 
         String checksum = FileUtil.readUtf8String(latestChecksumFile);
         UpdateModel latestUpdateModel = ChecksumUtil.parseChecksum(checksum);
+
+        // 补充额外的CheckList
+        addCheckListFileModel(latestUpdateModel);
 
         List<FileModel> fileModels = compareAppFiles(latestUpdateModel, model);
         latestUpdateModel.setFiles(fileModels);
@@ -205,6 +208,24 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             }
         }
+    }
+
+    private void addCheckListFileModel(UpdateModel latestUpdateModel) {
+        String appName = latestUpdateModel.getAppName();
+        String version = latestUpdateModel.getVersion();
+        // 添加Checksum文件
+        File checksumFile = appRepository.getChecksumFile(appName, version, true);
+        File contentFile = appRepository.getContentFile(appName, version, true);
+        FileModel checksumFileModel = ChecksumUtil.crc32FileModel(checksumFile);
+
+        String path = checksumFile.getPath().substring(contentFile.getPath().length());
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        } else if (path.startsWith("./")) {
+            path = path.substring(2);
+        }
+        FileModel fileModel = checksumFileModel.setOption(FileOption.ADD).setPath(path);
+        latestUpdateModel.getFiles().add(fileModel);
     }
 
     private List<FileModel> compareAppFiles(UpdateModel latestUpdateModel, UpdateModel model) {

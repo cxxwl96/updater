@@ -7,7 +7,7 @@ spring:
       name: admin
       password: 111
     url-white-list:
-      - /**/*.html, /**/*.css, /**/*.js, /favicon.ico
+      - /**/*.html, /**/*.css, /**/*.js, /**/*.woff, /**/*.ttf, /favicon.ico
       - /download/**, /update/**
   servlet:
     multipart:
