@@ -144,7 +144,7 @@ public class UpdateServiceImpl implements UpdateService {
         String appName = model.getAppName();
         File latestFile = appRepository.getLatestFile(appName, true);
 
-        // 获取最新版本的checksum
+        // 获取最新版本的Checksum
         String latestVersion = FileUtil.readUtf8String(latestFile).trim();
         File latestChecksumFile = appRepository.getChecksumFile(appName, latestVersion, true);
 

@@ -103,7 +103,7 @@ public class ChecksumUtil {
             Assert.notBlank(version);
             updateModel.setAppName(appName);
             updateModel.setVersion(version);
-        } catch (NoSuchElementException exception) {
+        } catch (NoSuchElementException | IllegalArgumentException exception) {
             log.error(exception.getMessage(), exception);
             throw new BadRequestException("错误的校验文件");
         }
