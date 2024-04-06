@@ -81,7 +81,7 @@ public class AppRepository {
      * @return 应用Content路径
      */
     public File getContentFile(String appName, String version, boolean checkExist) {
-        File file = FileUtil.newFile(String.format("%s/Content", getVersionFile(appName, version, checkExist)));
+        File file = FileUtil.newFile(String.format("%s/%s", getVersionFile(appName, version, checkExist), appName));
         checkFileExist(checkExist, file, "Content目录不存在");
         return file;
     }

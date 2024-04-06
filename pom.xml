@@ -14,9 +14,9 @@
     <version>1.0.0</version>
     <packaging>pom</packaging>
     <modules>
-        <module>updater-server</module>
         <module>updater-api</module>
         <module>updater-client</module>
+        <module>updater-server</module>
     </modules>
 
     <properties>

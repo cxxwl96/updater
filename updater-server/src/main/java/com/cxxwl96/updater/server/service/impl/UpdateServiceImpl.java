@@ -119,7 +119,7 @@ public class UpdateServiceImpl implements UpdateService {
             // 重新压缩zip
             File zipFile = appRepository.getZipFile(appName, version, false);
             log.info("Re-zip file '{}'", zipFile.getPath());
-            ZipUtil.zip(contentFile.getAbsolutePath(), zipFile.getAbsolutePath());
+            ZipUtil.zip(contentFile.getAbsolutePath(), zipFile.getAbsolutePath(), true);
 
             // 更新latest
             if (request.isLatest()) {

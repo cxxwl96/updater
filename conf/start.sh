@@ -1,1 +1,1 @@
-/usr/java/jdk1.8.0_121/bin/java -jar -Xmx1024M -Xms256M -Dspring.config.location=conf/application.yml -Dlogging.config=conf/log4j2.xml /www/wwwroot/fengrui/updater/updater-server-1.0.0.jar
+java  -jar -Xmx1024M -Xms256M -Dspring.config.location=conf/application.yml -Dlogging.config=conf/log4j2.xml updater-server-1.0.0.jar --server.port=8000
