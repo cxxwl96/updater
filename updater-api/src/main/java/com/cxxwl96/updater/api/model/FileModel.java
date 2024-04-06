@@ -19,6 +19,8 @@ package com.cxxwl96.updater.api.model;
 import com.cxxwl96.updater.api.enums.FileOption;
 import com.cxxwl96.updater.api.enums.FileType;
 
+import java.util.List;
+
 import javax.validation.constraints.NotBlank;
 
 import lombok.Data;
@@ -52,6 +54,5 @@ public class FileModel {
     // 文件大小。单位：Bit
     private Long size;
 
-    // 友好的文件大小
-    private String prettySize;
+    private List<FileModel> children;
 }

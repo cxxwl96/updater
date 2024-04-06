@@ -45,6 +45,10 @@ public class AppRepository {
     @Autowired
     private AppConfig appConfig;
 
+    public File getRepositoryFile() {
+        return FileUtil.newFile(appConfig.getRepository());
+    }
+
     /**
      * 获取应用根路径
      *
@@ -53,7 +57,7 @@ public class AppRepository {
      * @return 应用根路径
      */
     public File getRootFile(String appName, boolean checkExist) {
-        File file = FileUtil.newFile(String.format("%s/%s", appConfig.getRepository(), appName));
+        File file = FileUtil.newFile(String.format("%s/%s", getRepositoryFile().getPath(), appName));
         checkFileExist(checkExist, file, "应用" + appName + "不存在");
         return file;
     }
@@ -171,7 +175,7 @@ public class AppRepository {
      * @return 相对仓库根目录路径下的文件列表
      */
     public List<FileModel> list(String pathRelativeToRepository) {
-        File repositoryFile = FileUtil.newFile(appConfig.getRepository());
+        File repositoryFile = FileUtil.newFile(getRepositoryFile().getPath());
 
         // 拦截路径注入
         if (pathRelativeToRepository.contains("../") || pathRelativeToRepository.contains("/..")) {
@@ -188,8 +192,7 @@ public class AppRepository {
             if (childFile.isFile()) {
                 fileModel.setType(FileType.FILE)
                     .setCrc32(FileUtil.checksumCRC32(childFile))
-                    .setSize(childFile.length())
-                    .setPrettySize(prettySize(childFile.length()));
+                    .setSize(childFile.length());
             } else if (childFile.isDirectory()) {
                 fileModel.setType(FileType.DIRECTORY);
             } else {
@@ -206,16 +209,6 @@ public class AppRepository {
             fileModels.add(fileModel);
         }
         return fileModels;
-    }
-
-    /**
-     * 友好的文件长度
-     *
-     * @param size
-     * @return
-     */
-    private String prettySize(long size) {
-        return null;
     }
 
     /**

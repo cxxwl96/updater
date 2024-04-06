@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8000
 
 spring:
   security:
@@ -9,6 +9,7 @@ spring:
     url-white-list:
       - /**/*.html, /**/*.css, /**/*.js, /**/*.woff, /**/*.ttf, /favicon.ico
       - /download/**, /update/**
+      - /repository/**
   servlet:
     multipart:
       enabled: true
