@@ -16,23 +16,17 @@
 
 package com.cxxwl96.updater.server.utils;
 
-import com.cxxwl96.updater.api.enums.FileType;
 import com.cxxwl96.updater.api.exception.BadRequestException;
 import com.cxxwl96.updater.api.model.Constant;
-import com.cxxwl96.updater.api.model.FileModel;
 import com.cxxwl96.updater.server.config.AppConfig;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.StrUtil;
 
 /**
  * AppRepository
@@ -157,58 +151,6 @@ public class AppRepository {
         File file = FileUtil.newFile(String.format("%s/%s", getContentFile(appName, version, checkExist), pathRelativeToContent));
         checkFileExist(checkExist, file, "没有找到文件: " + pathRelativeToContent);
         return file;
-    }
-
-    /**
-     * 获取应用仓库路径下的文件列表
-     *
-     * @return 应用仓库路径下的文件列表
-     */
-    public List<FileModel> list() {
-        return list(StrUtil.EMPTY);
-    }
-
-    /**
-     * 获取相对仓库根目录路径下的文件列表
-     *
-     * @param pathRelativeToRepository 相对仓库根目录路径
-     * @return 相对仓库根目录路径下的文件列表
-     */
-    public List<FileModel> list(String pathRelativeToRepository) {
-        File repositoryFile = FileUtil.newFile(getRepositoryFile().getPath());
-
-        // 拦截路径注入
-        if (pathRelativeToRepository.contains("../") || pathRelativeToRepository.contains("/..")) {
-            throw new BadRequestException("你没有权限查看");
-        }
-
-        File[] files = FileUtil.newFile(repositoryFile.getPath() + "/" + pathRelativeToRepository).listFiles();
-        List<FileModel> fileModels = new ArrayList<>();
-        if (ArrayUtil.isEmpty(files)) {
-            return fileModels;
-        }
-        for (File childFile : files) {
-            FileModel fileModel = new FileModel().setPath(childFile.getPath()).setName(childFile.getName());
-            if (childFile.isFile()) {
-                fileModel.setType(FileType.FILE)
-                    .setCrc32(FileUtil.checksumCRC32(childFile))
-                    .setSize(childFile.length());
-            } else if (childFile.isDirectory()) {
-                fileModel.setType(FileType.DIRECTORY);
-            } else {
-                throw new BadRequestException("不支持的文件: " + childFile.getPath());
-            }
-            // 去掉仓库前缀
-            String path = fileModel.getPath().replace(repositoryFile.getPath(), "");
-            if (path.startsWith("/")) {
-                path = path.substring(1);
-            } else if (path.startsWith("./")) {
-                path = path.substring(2);
-            }
-            fileModel.setPath(path);
-            fileModels.add(fileModel);
-        }
-        return fileModels;
     }
 
     /**

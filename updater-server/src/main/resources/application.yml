@@ -9,7 +9,6 @@ spring:
     url-white-list:
       - /**/*.html, /**/*.css, /**/*.js, /**/*.woff, /**/*.ttf, /favicon.ico
       - /download/**, /update/**
-      - /repository/**
   servlet:
     multipart:
       enabled: true

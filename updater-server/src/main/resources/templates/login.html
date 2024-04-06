@@ -2,16 +2,87 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>登录</title>
+    <title>Updater Index</title>
+    <link rel="icon" href="/favicon.ico"/>
+    <link rel="stylesheet" href="/element-ui/index.css">
+    <style>
+        .page-center {
+            height: 100vh;
+            /*垂直居中*/
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            /*水平居中*/
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
 </head>
 <body>
-<form action="/login" method="post">
-    <input type="text" name="username">
-    <input type="text" name="password">
-    <button type="submit">登录</button>
-    <div th:with="exp=${#request.session.getAttribute('SPRING_SECURITY_LAST_EXCEPTION')}">
-        <p th:if="${exp}" th:text="${exp.message}"></p>
-    </div>
-</form>
+
+<div id="app" class="page-center">
+    <form action="/login" method="post" style="display: none">
+        <input type="text" name="username" v-model="formData.username">
+        <input type="text" name="password" v-model="formData.password">
+        <button type="submit" ref="submitBtn">登录</button>
+        <div th:with="exp=${#request.session.getAttribute('SPRING_SECURITY_LAST_EXCEPTION')}">
+            <p th:if="${exp}" th:text="${exp.message}"></p>
+        </div>
+    </form>
+    <el-card style="width: 400px">
+        <el-form :model="formData" :rules="rules" ref="formData" >
+            <el-form-item>
+                <h2 style="text-align: center">Updater Login</h2>
+            </el-form-item>
+            <el-form-item label="账号" prop="username">
+                <el-input v-model="formData.username" clearable autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="密码" prop="password">
+                <el-input v-model="formData.password" clearable autocomplete="off" show-password></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="submitForm('formData')">登录</el-button>
+            </el-form-item>
+            <el-form-item th:with="exp=${#request.session.getAttribute('SPRING_SECURITY_LAST_EXCEPTION')}">
+                <el-alert th:if="${exp}" th:title="${exp.message}" type="error"></el-alert>
+            </el-form-item>
+        </el-form>
+    </el-card>
+</div>
+<script src="/vue/vue.js"></script>
+<script src="/element-ui/index.js"></script>
+<script type="text/javascript">
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                formData: {
+                    username: '',
+                    password: '',
+                },
+                rules: {
+                    username: [
+                        { required: true, message: '请输入账号', trigger: 'blur' },
+                    ],
+                    password: [
+                        { required: true, message: '请输入密码', trigger: 'blur' },
+                    ],
+                }
+            }
+        },
+        methods: {
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.$refs.submitBtn.click();
+                    } else {
+                        return false;
+                    }
+                });
+            }
+        }
+    });
+</script>
 </body>
 </html>

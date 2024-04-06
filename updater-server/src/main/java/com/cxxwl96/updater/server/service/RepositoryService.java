@@ -29,26 +29,10 @@ import java.util.List;
  */
 public interface RepositoryService {
     /**
-     * 获取所有应用
+     * 获取相对仓库根目录路径下的文件列表
      *
-     * @return 所有应用
+     * @param pathRelativeToRepository 相对仓库根目录路径
+     * @return 相对仓库根目录路径下的文件列表
      */
-    Result<List<FileModel>> apps();
-
-    /**
-     * 获取应用的所有版本
-     *
-     * @param appName 应用名
-     * @return 应用的所有版本
-     */
-    Result<List<FileModel>> versions(String appName);
-
-    /**
-     * 获取应用版本详情
-     *
-     * @param appName 应用名
-     * @param version 应用版本
-     * @return 应用版本详情
-     */
-    Result<List<FileModel>> versionDetail(String appName, String version);
+    Result<List<FileModel>> list(String pathRelativeToRepository);
 }

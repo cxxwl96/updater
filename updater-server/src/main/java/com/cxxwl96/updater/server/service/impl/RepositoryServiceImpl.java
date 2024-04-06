@@ -17,12 +17,14 @@
 package com.cxxwl96.updater.server.service.impl;
 
 import com.cxxwl96.updater.api.enums.FileType;
+import com.cxxwl96.updater.api.exception.BadRequestException;
 import com.cxxwl96.updater.api.model.FileModel;
 import com.cxxwl96.updater.api.model.Result;
 import com.cxxwl96.updater.server.service.RepositoryService;
 import com.cxxwl96.updater.server.utils.AppRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -32,8 +34,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 
 /**
  * RepositoryServiceImpl
@@ -47,71 +50,67 @@ public class RepositoryServiceImpl implements RepositoryService {
     private AppRepository appRepository;
 
     /**
-     * 获取所有应用
+     * 获取相对仓库根目录路径下的文件列表
      *
-     * @return 所有应用
+     * @param pathRelativeToRepository 相对仓库根目录路径
+     * @return 相对仓库根目录路径下的文件列表
      */
     @Override
-    public Result<List<FileModel>> apps() {
-        File[] files = appRepository.getRepositoryFile().listFiles();
-        return Result.success(buildFileModels(files));
-    }
+    public Result<List<FileModel>> list(@Nullable String pathRelativeToRepository) {
+        String path = Optional.ofNullable(pathRelativeToRepository).orElse(StrUtil.EMPTY);
 
-    /**
-     * 获取应用的所有版本
-     *
-     * @param appName 应用名
-     * @return 应用的所有版本
-     */
-    @Override
-    public Result<List<FileModel>> versions(String appName) {
-        File rootFile = appRepository.getRootFile(appName, true);
-        return Result.success(buildFileModels(rootFile.listFiles(File::isDirectory)));
-    }
+        File repositoryFile = FileUtil.newFile(appRepository.getRepositoryFile().getPath());
 
-    /**
-     * 获取应用版本详情
-     *
-     * @param appName 应用名
-     * @param version 应用版本
-     * @return 应用版本详情
-     */
-    @Override
-    public Result<List<FileModel>> versionDetail(String appName, String version) {
-        File versionFile = appRepository.getVersionFile(appName, version, true);
-        List<FileModel> fileModels = loopFiles(versionFile.listFiles());
+        // 拦截路径注入
+        if (path.contains("../") || path.contains("/..")) {
+            throw new BadRequestException("你没有权限查看");
+        }
+
+        File[] files = FileUtil.newFile(repositoryFile.getPath() + "/" + path).listFiles();
+        List<FileModel> fileModels = new ArrayList<>();
+        if (ArrayUtil.isEmpty(files)) {
+            return Result.success();
+        }
+
+        // 先按文件夹、文件排序，再按文件排序
+        List<File> sortedFiles = Arrays.stream(files).sorted((file1, file2) -> {
+            int value1 = 0, value2 = 0;
+            if (file1.isDirectory()) {
+                value1 = 1;
+            }
+            if (file2.isDirectory()) {
+                value2 = 1;
+            }
+            if (value1 != value2) {
+                return value2 - value1;
+            } else {
+                return file1.getName().compareTo(file2.getName());
+            }
+        }).collect(Collectors.toList());
+
+        for (File childFile : sortedFiles) {
+            FileModel fileModel = buildFileModel(childFile, repositoryFile);
+            fileModels.add(fileModel);
+        }
         return Result.success(fileModels);
     }
 
-    private List<FileModel> loopFiles(File[] files) {
-        if (ArrayUtil.isEmpty(files)) {
-            return CollUtil.empty(FileModel.class);
-        }
-        ArrayList<FileModel> list = new ArrayList<>();
-        for (File file : files) {
-            FileModel fileModel = buildFileModel(file);
-            if (file.isDirectory()) {
-                List<FileModel> fileModels = loopFiles(file.listFiles());
-                fileModel.setChildren(fileModels);
-            }
-            list.add(fileModel);
-        }
-        return list;
-    }
-
-    private List<FileModel> buildFileModels(File[] files) {
-        if (ArrayUtil.isEmpty(files)) {
-            return CollUtil.empty(FileModel.class);
-        }
-        File[] appFiles = Optional.ofNullable(files).orElse(new File[] {});
-        return Arrays.stream(appFiles).map(this::buildFileModel).collect(Collectors.toList());
-    }
-
-    private FileModel buildFileModel(File file) {
+    private FileModel buildFileModel(File file, File relativeFile) {
         FileModel fileModel = new FileModel();
         fileModel.setType(file.isFile() ? FileType.FILE : FileType.DIRECTORY);
+        fileModel.setPath(file.getPath());
         fileModel.setName(file.getName());
         fileModel.setSize(file.isFile() ? file.length() : 0L);
+        // 去掉仓库前缀
+        if (relativeFile != null) {
+            String pathTemp = fileModel.getPath().replace(relativeFile.getPath(), "");
+            if (pathTemp.startsWith("/")) {
+                pathTemp = pathTemp.substring(1);
+            } else if (pathTemp.startsWith("./")) {
+                pathTemp = pathTemp.substring(2);
+            }
+            fileModel.setPath(pathTemp);
+        }
         return fileModel;
     }
 }

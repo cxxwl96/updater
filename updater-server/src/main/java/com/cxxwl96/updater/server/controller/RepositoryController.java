@@ -22,8 +22,8 @@ import com.cxxwl96.updater.server.service.RepositoryService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -40,18 +40,8 @@ public class RepositoryController {
     @Autowired
     private RepositoryService repositoryService;
 
-    @GetMapping("/apps")
-    public Result<List<FileModel>> apps() {
-        return repositoryService.apps();
-    }
-
-    @GetMapping("/apps/{appName}")
-    public Result<List<FileModel>> versions(@PathVariable String appName) {
-        return repositoryService.versions(appName);
-    }
-
-    @GetMapping("/apps/{appName}/{version}")
-    public Result<List<FileModel>> versionDetail(@PathVariable String appName, @PathVariable String version) {
-        return repositoryService.versionDetail(appName, version);
+    @GetMapping("/list")
+    public Result<List<FileModel>> list(@RequestParam String path) {
+        return repositoryService.list(path);
     }
 }

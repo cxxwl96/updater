@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Updater Index</title>
-    <link rel="icon" href="../static/favicon.ico"/>
-    <link rel="stylesheet" href="../static/element-ui/index.css">
-    <link rel="stylesheet" href="../static/swiper/swiper-bundle.min.css">
-    <link rel="stylesheet" href="../static/css/index.css">
+    <link rel="icon" href="/favicon.ico"/>
+    <link rel="stylesheet" href="/element-ui/index.css">
+    <link rel="stylesheet" href="/swiper/swiper-bundle.min.css">
+    <link rel="stylesheet" href="/css/index.css">
 </head>
 
 <body>
@@ -20,15 +20,34 @@
             </div>
         </div>
         <div class="swiper-slide">
+            <div class="page-center" id="app-repository">
+                <el-row>
+                    <h2 style="text-align: center; margin: 20px 0;">App Repository</h2>
+                    <el-row class="infinite-list">
+                        <el-tree
+                                :props="props"
+                                :load="loadNode"
+                                lazy>
+<!--                            <span class="custom-tree-node" slot-scope="{ node, data }">-->
+<!--                                <span>{{ data.name }}</span>-->
+<!--                            </span>-->
+                        </el-tree>
+                    </el-row>
+                </el-row>
+            </div>
+        </div>
+        <div class="swiper-slide">
             <div class="page-center" id="app-upload">
                 <el-row>
                     <h2 style="text-align: center; margin: 20px 0;">上传APP文件</h2>
                     <el-form :model="formData" label-width="100px">
                         <el-form-item label="应用名称">
-                            <el-input size="mini" v-model="formData.appName" placeholder="上传的文件名满足 '应用名.应用版本.zip' 自动解析"/>
+                            <el-input size="mini" v-model="formData.appName"
+                                      placeholder="上传的文件名满足 '应用名.应用版本.zip' 自动解析"/>
                         </el-form-item>
                         <el-form-item label="应用版本">
-                            <el-input size="mini" v-model="formData.version" placeholder="上传的文件名满足 '应用名.应用版本.zip' 自动解析"/>
+                            <el-input size="mini" v-model="formData.version"
+                                      placeholder="上传的文件名满足 '应用名.应用版本.zip' 自动解析"/>
                         </el-form-item>
                         <el-form-item label="是否Latest">
                             <el-switch v-model="formData.latest"></el-switch>
@@ -66,12 +85,59 @@
     </div>
     <div class="swiper-pagination"></div>
 </div>
-<script src="../static/vue/vue.js"></script>
-<script src="../static/element-ui/index.js"></script>
-<script src="../static/swiper/swiper-bundle.min.js"></script>
-<script src="../static/jquery/jquery.min.js"></script>
-<script src="../static/js/index.js"></script>
+<script src="/vue/vue.js"></script>
+<script src="/element-ui/index.js"></script>
+<script src="/swiper/swiper-bundle.min.js"></script>
+<script src="/jquery/jquery.min.js"></script>
+<script src="/js/index.js"></script>
 <script type="application/javascript">
+    var appRepoVue = new Vue({
+        el: '#app-repository',
+        data: function () {
+            return {
+                props: {
+                    label: 'name',
+                    children: 'children',
+                    isLeaf: function (data, node) {
+                        return data?.type === 'FILE';
+                    }
+                },
+            };
+        },
+        methods: {
+            request: function (type, url, showError) {
+                var request = new XMLHttpRequest();
+                request.open('GET', url, false);  // 第三个参数为 false 表示同步
+                request.send(null);
+                // 确保请求完成
+                if (request.status === 200) {
+                    var response = JSON.parse(request.responseText);
+                    if (response.code === 200) {
+                        return response.data;
+                    }
+                    if (showError) {
+                        ELEMENT.Message({message: response.msg, type: 'error'});
+                    }
+                    return null;
+                } else {
+                    if (showError) {
+                        ELEMENT.Message({message: request.statusText, type: 'error'});
+                    }
+                    return null;
+                }
+            },
+            loadNode(node, resolve) {
+                var path = '';
+                if (node.level !== 0) {
+                    path = encodeURIComponent(node.data.path);
+                }
+                var data = this.request('GET', '[[@{/repository/list?path=}]]' + path, true);
+                if (data) {
+                    return resolve(data);
+                }
+            }
+        }
+    });
     var appUploadVue = new Vue({
         el: '#app-upload',
         data: function () {
@@ -102,7 +168,7 @@
                         return true;
                     },
                     onChange: function (file, fileList) {
-                        if (file.status!=="ready") {
+                        if (file.status !== "ready") {
                             return;
                         }
                         var isBlank = appUploadVue.$data.upload.isBlank;
