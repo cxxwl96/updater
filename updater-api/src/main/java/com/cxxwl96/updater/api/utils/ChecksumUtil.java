@@ -23,6 +23,7 @@ import com.cxxwl96.updater.api.model.UpdateModel;
 import java.io.File;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -45,6 +47,10 @@ public class ChecksumUtil {
     private static final String LINE_BREAK = "\n";
 
     private static final String CHECK_LIST_HEADER_FILE = "CheckListHeader";
+
+    private static final String APP_NAME = "AppName: ";
+
+    private static final String VERSION = "Version: ";
 
     /**
      * 计算文件/文件夹crc32
@@ -62,13 +68,7 @@ public class ChecksumUtil {
         } else {
             fileModels = FileUtil.loopFiles(file).stream().map(ChecksumUtil::crc32FileModel).collect(Collectors.toList());
         }
-        StringBuilder sb = new StringBuilder();
-        sb.append(ResourceUtil.readUtf8Str(CHECK_LIST_HEADER_FILE))
-            .append(LINE_BREAK)
-            .append(appName)
-            .append(LINE_BREAK)
-            .append(version)
-            .append(LINE_BREAK);
+        StringBuilder sb = new StringBuilder(checksumHeader(appName, version));
         for (FileModel fileModel : fileModels) {
             String path = fileModel.getPath().substring(file.getPath().length());
             if (path.startsWith("/")) {
@@ -79,6 +79,18 @@ public class ChecksumUtil {
             sb.append(path).append(SEPARATOR).append(fileModel.getCrc32()).append(LINE_BREAK);
         }
         return sb.toString();
+    }
+
+    /**
+     * 生成checksum头部信息
+     *
+     * @param appName app name
+     * @param version version
+     * @return checksum头部信息
+     */
+    public static String checksumHeader(String appName, String version) {
+        return ResourceUtil.readUtf8Str(CHECK_LIST_HEADER_FILE) + LINE_BREAK + APP_NAME + Optional.ofNullable(appName).orElse(StrUtil.EMPTY)
+            + LINE_BREAK + VERSION + Optional.ofNullable(version).orElse(StrUtil.EMPTY) + LINE_BREAK;
     }
 
     /**
@@ -97,10 +109,10 @@ public class ChecksumUtil {
             for (int i = 0; i < count; i++) {
                 scanner.nextLine();
             }
-            String appName = scanner.nextLine();
-            String version = scanner.nextLine();
-            Assert.notBlank(appName);
-            Assert.notBlank(version);
+            String appName = scanner.nextLine().substring(APP_NAME.length());
+            String version = scanner.nextLine().substring(VERSION.length());
+            Assert.notBlank(appName, "AppName must not be blank");
+            Assert.notBlank(version, "Version must not be blank");
             updateModel.setAppName(appName);
             updateModel.setVersion(version);
         } catch (NoSuchElementException | IllegalArgumentException exception) {

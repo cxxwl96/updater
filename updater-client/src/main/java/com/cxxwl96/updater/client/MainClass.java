@@ -57,15 +57,25 @@ public class MainClass {
 
     private static void checkUpdate() {
         File checksumFile = FileUtil.newFile(Constant.CHECKLIST);
+        if (!checksumFile.exists()) {
+            log.warn("没有找到CHECKLIST文件, 将自动生成CHECKLIST文件");
+            String checksumHeader = ChecksumUtil.checksumHeader(null, null);
+            FileUtil.writeUtf8String(checksumHeader, checksumFile);
+        }
         Assert.isTrue(checksumFile.exists(), () -> new BadRequestException("检查更新失败，没有找到CHECKLIST文件"));
 
-        String url = "http://localhost:8080/update/check";
+        String url = "http://localhost:8000/update/check";
         UpdateModel requestBody = ChecksumUtil.parseChecksum(FileUtil.readUtf8String(checksumFile));
 
-        try (HttpResponse response = HttpUtil.createPost(url).body(JSON.toJSONString(checksumFile)).execute()) {
+        try (HttpResponse response = HttpUtil.createPost(url).body(JSON.toJSONString(requestBody)).execute()) {
             Assert.isTrue(response.isOk(), () -> {
                 log.error("请求服务器异常, response: {}", response);
-                return new BadRequestException("请求服务器异常");
+                try {
+                    Result<?> result = JSON.parseObject(response.body(), Result.class);
+                    return new BadRequestException(result);
+                } catch (Throwable throwable) {
+                    return new BadRequestException("请求服务器异常");
+                }
             });
             Result<UpdateModel> responseBody = JSON.parseObject(response.body(), new TypeReference<Result<UpdateModel>>() {
             });

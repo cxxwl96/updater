@@ -6,6 +6,10 @@
     <link rel="icon" href="/favicon.ico"/>
     <link rel="stylesheet" href="/element-ui/index.css">
     <style>
+        body {
+            height: 100vh;
+            background: #fafafa;
+        }
         .page-center {
             height: 100vh;
             /*垂直居中*/
@@ -16,6 +20,13 @@
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
+        }
+        .login-box {
+            width: 400px;
+        }
+        .login-submit {
+            margin: 20px 0;
+            width: 100%;
         }
     </style>
 </head>
@@ -30,8 +41,8 @@
             <p th:if="${exp}" th:text="${exp.message}"></p>
         </div>
     </form>
-    <el-card style="width: 400px">
-        <el-form :model="formData" :rules="rules" ref="formData" >
+    <el-card class="login-box">
+        <el-form :model="formData" :rules="rules" ref="formData" v-loading="loading" @keyup.native.enter="submitForm('formData')">
             <el-form-item>
                 <h2 style="text-align: center">Updater Login</h2>
             </el-form-item>
@@ -42,7 +53,7 @@
                 <el-input v-model="formData.password" clearable autocomplete="off" show-password></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button type="primary" @click="submitForm('formData')">登录</el-button>
+                <el-button type="primary" @click="submitForm('formData')" class="login-submit">登录</el-button>
             </el-form-item>
             <el-form-item th:with="exp=${#request.session.getAttribute('SPRING_SECURITY_LAST_EXCEPTION')}">
                 <el-alert th:if="${exp}" th:title="${exp.message}" type="error"></el-alert>
@@ -57,6 +68,7 @@
         el: '#app',
         data: function () {
             return {
+                loading: false,
                 formData: {
                     username: '',
                     password: '',
@@ -73,10 +85,12 @@
         },
         methods: {
             submitForm(formName) {
+                this.loading = true;
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         this.$refs.submitBtn.click();
                     } else {
+                        this.loading = false;
                         return false;
                     }
                 });

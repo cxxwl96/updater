@@ -36,7 +36,8 @@ var themeds = [
         color: '#FFFFFF'
     },
     {
-        bg: '#909399'
+        bg: '#909399',
+        color: '#FFFFFF'
     },
     {
         bg: '#C0C4CC'
