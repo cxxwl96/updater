@@ -95,6 +95,19 @@ public class RepositoryServiceImpl implements RepositoryService {
         return Result.success(fileModels);
     }
 
+    /**
+     * 获取应用最新版本
+     *
+     * @param appName app name
+     * @return 应用最新版本
+     */
+    @Override
+    public Result<String> latest(String appName) {
+        File latestFile = appRepository.getLatestFile(appName, true);
+        String latestVersion = FileUtil.readUtf8String(latestFile).trim();
+        return Result.success("success", latestVersion);
+    }
+
     private FileModel buildFileModel(File file, File relativeFile) {
         FileModel fileModel = new FileModel();
         fileModel.setType(file.isFile() ? FileType.FILE : FileType.DIRECTORY);

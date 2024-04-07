@@ -35,4 +35,11 @@ public interface RepositoryService {
      * @return 相对仓库根目录路径下的文件列表
      */
     Result<List<FileModel>> list(String pathRelativeToRepository);
+
+    /**
+     * 获取应用最新版本
+     * @param appName app name
+     * @return 应用最新版本
+     */
+    Result<String> latest(String appName);
 }

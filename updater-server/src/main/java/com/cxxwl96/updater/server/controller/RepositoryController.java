@@ -22,6 +22,7 @@ import com.cxxwl96.updater.server.service.RepositoryService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,5 +44,10 @@ public class RepositoryController {
     @GetMapping("/list")
     public Result<List<FileModel>> list(@RequestParam String path) {
         return repositoryService.list(path);
+    }
+
+    @GetMapping("/{appName}/latest")
+    public Result<String> latest(@PathVariable String appName) {
+        return repositoryService.latest(appName);
     }
 }
