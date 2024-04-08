@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package com.cxxwl96.updater.server.config;
+package com.cxxwl96.updater.client.model;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
+import com.cxxwl96.updater.api.model.FileModel;
 
 import java.util.List;
-import java.util.Map;
 
 import lombok.Data;
 
 /**
- * Config
+ * CheckUpdateResult
  *
  * @author cxxwl96
- * @since 2024/4/1 00:09
+ * @since 2024/04/08 19:28
  */
 @Data
-@Configuration
-@ConfigurationProperties(prefix = "app")
-public class AppConfig {
-    private String repository;
+public class CheckUpdateResult {
+    private boolean needUpdate;
 
-    private List<String> defaultIgnoreFiles;
+    private String appName;
 
-    private Map<String, List<String>> ignoreFiles;
+    private String oldVersion;
+
+    private String newVersion;
+
+    private List<FileModel> modifyFileModels;
 }

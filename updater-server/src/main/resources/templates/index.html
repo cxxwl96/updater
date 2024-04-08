@@ -23,14 +23,22 @@
             <div class="page-center" id="app-repository">
                 <el-row>
                     <h2 style="text-align: center; margin: 20px 0;">App Repository</h2>
-                    <el-row class="infinite-list">
+                    <el-row class="repository-box">
                         <el-tree
                                 :props="props"
                                 :load="loadNode"
                                 lazy>
-                            <div slot-scope="{ node, data }">
+                            <div slot-scope="{ node, data }" :style="treeNodeStyle(node, data)" class="tree-node-item">
+                                <el-tag v-if="node.level===1" effect="dark" size="mini" type="success">应用</el-tag>
+                                <el-tag v-if="node.level===2" effect="dark" size="mini">版本</el-tag>
                                 <span>{{ data.name }}</span>
-                                <el-tag effect="dark" size="mini" v-if="node.level===1 && latestVersion(data.name)" v-text="latestVersion(data.name)"></el-tag>
+                                <el-tag v-if="node.level===1" v-text="latestVersion(data.name)" effect="plain" size="mini"></el-tag>
+                                <el-tooltip v-if="node.level===1 || node.level===2" content="复制下载链接" effect="dark" placement="bottom">
+                                    <i class="el-icon-copy-document" @click.stop="copyDownloadUrl(node, data)"></i>
+                                </el-tooltip>
+                                <el-tooltip v-if="node.level===1 || node.level===2" content="下载" effect="dark" placement="bottom">
+                                    <i class="el-icon-download" @click.stop="download(node, data)"></i>
+                                </el-tooltip>
                             </div>
                         </el-tree>
                     </el-row>
@@ -132,6 +140,59 @@
             },
             latestVersion(appName) {
                 return this.request('GET', '/repository/' + appName + '/latest', false);
+            },
+            treeNodeStyle(node, data) {
+                var style = {
+                    width: '100%',
+                    paddingLeft: '20px',
+                }
+                if (node.level === 1) {
+                    return {
+                        ...style,
+                        height: '80px',
+                        lineHeight: '80px',
+                        boxShadow: '0 2px 12px 0 rgba(0,0,0,.1)',
+                        marginBottom: '20px',
+                    }
+                }
+                if (node.level === 2) {
+                    return {
+                        ...style,
+                        padding: '20px 0 20px 20px',
+                        border: '1px solid #dadada',
+                        marginBottom: '10px',
+                        borderRadius: '5px',
+                    }
+                }
+                if (node.level === 3) {
+                    return {
+                        ...style,
+                        padding: '10px 0 10px 10px',
+                    }
+                }
+                return {
+                    ...style,
+                }
+            },
+            getDownloadUrl(data) {
+                var uri = '[[@{/download/}]]' + data.path;
+                var href = window.location.href;
+                if (href.endsWith('/')) {
+                    href = href.slice(0, -1) + uri;
+                }
+                return href;
+            },
+            copyDownloadUrl(node, data) {
+                try {
+                    navigator.clipboard.writeText(this.getDownloadUrl(data));
+                    ELEMENT.Message({message: '复制成功', type: 'success'});
+                } catch (err) {
+                    console.error('复制失败', err);
+                    ELEMENT.Message({message: '复制失败', type: 'error'});
+                }
+            },
+            download(node, data) {
+                window.location.href = this.getDownloadUrl(data);
             }
         }
     });

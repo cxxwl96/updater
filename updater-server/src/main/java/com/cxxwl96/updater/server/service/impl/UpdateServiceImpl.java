@@ -106,10 +106,9 @@ public class UpdateServiceImpl implements UpdateService {
             FileUtil.del(originalZipFile);
 
             // 删除忽略的文件
+            List<String> defaultIgnoreFiles = appConfig.getDefaultIgnoreFiles();
             List<String> ignoredFiles = appConfig.getIgnoreFiles().get(appName);
-            if (CollUtil.isNotEmpty(ignoredFiles)) {
-                delIgnoredFiles(ignoredFiles, contentFile);
-            }
+            deleteIgnoredFiles(ignoredFiles, defaultIgnoreFiles, contentFile);
 
             // 计算校验文件并保存
             log.info("Checksum file '{}'", contentFile.getPath());
@@ -142,10 +141,9 @@ public class UpdateServiceImpl implements UpdateService {
     @Override
     public Result<UpdateModel> checkUpdate(UpdateModel model) {
         String appName = model.getAppName();
-        File latestFile = appRepository.getLatestFile(appName, true);
 
         // 获取最新版本的Checksum
-        String latestVersion = FileUtil.readUtf8String(latestFile).trim();
+        String latestVersion = appRepository.getLatestVersion(appName, true, true);
         File latestChecksumFile = appRepository.getChecksumFile(appName, latestVersion, true);
 
         String checksum = FileUtil.readUtf8String(latestChecksumFile);
@@ -167,11 +165,22 @@ public class UpdateServiceImpl implements UpdateService {
      */
     @Override
     public void downloadLatest(String appName, HttpServletResponse response) {
-        appRepository.getRootFile(appName, true);
-
+        String latestVersion = appRepository.getLatestVersion(appName, true, true);
         File appZipFile = appRepository.getLatestAppZipFile(appName, true);
+        dealDownload(response, appZipFile, appName + "-" + latestVersion + ".zip");
+    }
 
-        dealDownload(response, appZipFile);
+    /**
+     * 下载最新应用
+     *
+     * @param appName app name
+     * @param version version
+     * @param response response
+     */
+    @Override
+    public void download(String appName, String version, HttpServletResponse response) {
+        File zipFile = appRepository.getZipFile(appName, version, true);
+        dealDownload(response, zipFile, appName + "-" + version + ".zip");
     }
 
     /**
@@ -191,11 +200,11 @@ public class UpdateServiceImpl implements UpdateService {
 
         File singleFile = appRepository.getSingleInContentFile(appName, version, path, true);
 
-        dealDownload(response, singleFile);
+        dealDownload(response, singleFile, appName + "-" + version + ".zip");
     }
 
-    private void delIgnoredFiles(List<String> ignoredFiles, File file) {
-        if (ignoredFiles.contains(file.getName())) {
+    private void deleteIgnoredFiles(List<String> ignoredFiles, List<String> defaultIgnoreFiles, File file) {
+        if (CollUtil.contains(ignoredFiles, file.getName()) || CollUtil.contains(defaultIgnoreFiles, file.getName())) {
             log.info("Delete ignore file '{}'", file.getPath());
             FileUtil.del(file);
             return;
@@ -204,7 +213,7 @@ public class UpdateServiceImpl implements UpdateService {
             File[] files = file.listFiles();
             if (files != null) {
                 for (File childFile : files) {
-                    delIgnoredFiles(ignoredFiles, childFile);
+                    deleteIgnoredFiles(ignoredFiles, defaultIgnoreFiles, childFile);
                 }
             }
         }
@@ -268,10 +277,10 @@ public class UpdateServiceImpl implements UpdateService {
         return latestFiles;
     }
 
-    private void dealDownload(HttpServletResponse response, File file) {
+    private void dealDownload(HttpServletResponse response, File file, String filename) {
         try (InputStream is = FileUtil.getInputStream(file); OutputStream os = response.getOutputStream()) {
-            String contentDisposition = String.format("attachment;fileName=%s;filename*=utf-8''%s", file.getName(),
-                URLEncoder.encode(file.getName(), "UTF-8"));
+            String contentDisposition = String.format("attachment;fileName=%s;filename*=utf-8''%s", filename,
+                URLEncoder.encode(filename, "UTF-8"));
             // 响应头设置
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setHeader("content-type", "application/x-zip-compressed;charset=UTF-8");

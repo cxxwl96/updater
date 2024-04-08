@@ -18,8 +18,10 @@ package com.cxxwl96.updater.server.service.impl;
 
 import com.cxxwl96.updater.api.enums.FileType;
 import com.cxxwl96.updater.api.exception.BadRequestException;
+import com.cxxwl96.updater.api.model.Constant;
 import com.cxxwl96.updater.api.model.FileModel;
 import com.cxxwl96.updater.api.model.Result;
+import com.cxxwl96.updater.server.config.AppConfig;
 import com.cxxwl96.updater.server.service.RepositoryService;
 import com.cxxwl96.updater.server.utils.AppRepository;
 
@@ -28,12 +30,13 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
@@ -46,6 +49,9 @@ import cn.hutool.core.util.StrUtil;
  */
 @Service
 public class RepositoryServiceImpl implements RepositoryService {
+    @Autowired
+    private AppConfig appConfig;
+
     @Autowired
     private AppRepository appRepository;
 
@@ -67,31 +73,40 @@ public class RepositoryServiceImpl implements RepositoryService {
         }
 
         File[] files = FileUtil.newFile(repositoryFile.getPath() + "/" + path).listFiles();
-        List<FileModel> fileModels = new ArrayList<>();
         if (ArrayUtil.isEmpty(files)) {
             return Result.success();
         }
-
-        // 先按文件夹、文件排序，再按文件排序
-        List<File> sortedFiles = Arrays.stream(files).sorted((file1, file2) -> {
+        // 过滤被忽略的文件，先按文件夹、文件排序，再按文件排序
+        List<String> defaultIgnoreFiles = appConfig.getDefaultIgnoreFiles();
+        Map<String, List<String>> ignoreFiles = appConfig.getIgnoreFiles();
+        List<FileModel> fileModels = Arrays.stream(files).map(file -> buildFileModel(file, repositoryFile)).filter(fileModel -> {
+            String name = fileModel.getName();
+            // 过滤LATEST文件
+            if (Constant.LATEST.equals(name)) {
+                return false;
+            }
+            // 过滤默认忽略的文件
+            if (CollUtil.contains(defaultIgnoreFiles, name)) {
+                return false;
+            }
+            // 过滤应用忽略的文件
+            int endIndex = fileModel.getPath().indexOf("/");
+            String appName = fileModel.getPath().substring(0, endIndex < 0 ? fileModel.getPath().length() : endIndex);
+            return ignoreFiles == null || !ignoreFiles.containsKey(appName) || !ignoreFiles.get(appName).contains(name);
+        }).sorted((fileModel1, fileModel2) -> {
             int value1 = 0, value2 = 0;
-            if (file1.isDirectory()) {
+            if (fileModel1.getType() == FileType.DIRECTORY) {
                 value1 = 1;
             }
-            if (file2.isDirectory()) {
+            if (fileModel2.getType() == FileType.DIRECTORY) {
                 value2 = 1;
             }
             if (value1 != value2) {
                 return value2 - value1;
             } else {
-                return file1.getName().compareTo(file2.getName());
+                return fileModel1.getName().compareTo(fileModel2.getName());
             }
         }).collect(Collectors.toList());
-
-        for (File childFile : sortedFiles) {
-            FileModel fileModel = buildFileModel(childFile, repositoryFile);
-            fileModels.add(fileModel);
-        }
         return Result.success(fileModels);
     }
 
@@ -103,8 +118,7 @@ public class RepositoryServiceImpl implements RepositoryService {
      */
     @Override
     public Result<String> latest(String appName) {
-        File latestFile = appRepository.getLatestFile(appName, true);
-        String latestVersion = FileUtil.readUtf8String(latestFile).trim();
+        String latestVersion = appRepository.getLatestVersion(appName, true, true);
         return Result.success("success", latestVersion);
     }
 

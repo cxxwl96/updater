@@ -133,8 +133,7 @@ public class AppRepository {
      * @return 应用最新版本zip包路径
      */
     public File getLatestAppZipFile(String appName, boolean checkExist) {
-        File latestFile = getLatestFile(appName, checkExist);
-        String latestVersion = FileUtil.readUtf8String(latestFile).trim();
+        String latestVersion = getLatestVersion(appName, true, true);
         return getZipFile(appName, latestVersion, checkExist);
     }
 
@@ -151,6 +150,23 @@ public class AppRepository {
         File file = FileUtil.newFile(String.format("%s/%s", getContentFile(appName, version, checkExist), pathRelativeToContent));
         checkFileExist(checkExist, file, "没有找到文件: " + pathRelativeToContent);
         return file;
+    }
+
+    /**
+     * 获取应用最新版本号
+     *
+     * @param appName 应用名
+     * @param checkExist 检查是否存在，不存在则抛异常
+     * @param checkVersionBlank 检查版本号是否为空，为空则抛异常
+     * @return 应用最新版本号
+     */
+    public String getLatestVersion(String appName, boolean checkExist, boolean checkVersionBlank) {
+        File latestFile = getLatestFile(appName, checkExist);
+        String latestVersion = FileUtil.readUtf8String(latestFile);
+        if (checkVersionBlank) {
+            Assert.notBlank(latestVersion, () -> new BadRequestException("没有最新版本"));
+        }
+        return latestVersion;
     }
 
     /**

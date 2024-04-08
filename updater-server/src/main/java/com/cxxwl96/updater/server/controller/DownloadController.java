@@ -40,4 +40,9 @@ public class DownloadController {
     public void downloadLatest(@PathVariable String appName, HttpServletResponse response) {
         updateService.downloadLatest(appName, response);
     }
+
+    @GetMapping("/download/{appName}/{version}")
+    public void download(@PathVariable String appName, @PathVariable String version, HttpServletResponse response) {
+        updateService.download(appName, version, response);
+    }
 }

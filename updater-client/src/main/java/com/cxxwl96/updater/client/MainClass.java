@@ -24,6 +24,7 @@ import com.cxxwl96.updater.api.model.FileModel;
 import com.cxxwl96.updater.api.model.Result;
 import com.cxxwl96.updater.api.model.UpdateModel;
 import com.cxxwl96.updater.api.utils.ChecksumUtil;
+import com.cxxwl96.updater.client.model.CheckUpdateResult;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.StreamProgress;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -49,13 +51,50 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SpringBootApplication
 public class MainClass {
+    private static String host = "http://localhost:8000";
+
+    private static String downloadPath = "./logs/download/";
+
     public static void main(String[] args) {
         SpringApplication.run(MainClass.class, args);
 
-        checkUpdate();
+        CheckUpdateResult result = checkUpdate();
+
+        if (!result.isNeedUpdate()) {
+            // 版本相同且没有需要变更的文件则无需更新
+            log.info("已是最新版本: {}", result.getNewVersion());
+        } else {
+            log.info("检查到新版本");
+            log.info("当前版本: {}", result.getOldVersion());
+            log.info("新版本: {}", result.getNewVersion());
+            update(result);
+        }
     }
 
-    private static void checkUpdate() {
+    private static void update(CheckUpdateResult result) {
+        String url = String.format("%s/update/%s/%s/", host, result.getAppName(), result.getNewVersion());
+        for (FileModel fileModel : result.getModifyFileModels()) {
+            File file = FileUtil.newFile(downloadPath + fileModel.getPath());
+            HttpUtil.downloadFile(url + fileModel.getPath(), file, 3000, new StreamProgress() {
+                @Override
+                public void start() {
+                    log.info("更新文件: {}", fileModel.getPath());
+                }
+
+                @Override
+                public void progress(long total, long progressSize) {
+                    log.info("更新文件: {} {}/{}", fileModel.getPath(), progressSize, total);
+                }
+
+                @Override
+                public void finish() {
+                    log.info("更新文件: {} finish", fileModel.getPath());
+                }
+            });
+        }
+    }
+
+    private static CheckUpdateResult checkUpdate() {
         File checksumFile = FileUtil.newFile(Constant.CHECKLIST);
         if (!checksumFile.exists()) {
             log.warn("没有找到CHECKLIST文件, 将自动生成CHECKLIST文件");
@@ -64,7 +103,7 @@ public class MainClass {
         }
         Assert.isTrue(checksumFile.exists(), () -> new BadRequestException("检查更新失败，没有找到CHECKLIST文件"));
 
-        String url = "http://localhost:8000/update/check";
+        String url = host + "/update/check";
         UpdateModel requestBody = ChecksumUtil.parseChecksum(FileUtil.readUtf8String(checksumFile));
 
         try (HttpResponse response = HttpUtil.createPost(url).body(JSON.toJSONString(requestBody)).execute()) {
@@ -89,15 +128,13 @@ public class MainClass {
 
             String oldVersion = requestBody.getVersion();
             String newVersion = updateModel.getVersion();
-            if (StrUtil.equals(oldVersion, newVersion) && CollUtil.isEmpty(modifyFileModels)) {
-                // 版本相同且没有需要变更的文件则无需更新
-                log.info("已是最新版本");
-            } else {
-                log.info("检查到新版本{}, 是否需要从版本{}升级到版本{}", newVersion, oldVersion, newVersion);
-                for (FileModel modifyFileModel : modifyFileModels) {
-                    log.info("{}: {}", modifyFileModel.getOption(), modifyFileModel.getPath());
-                }
-            }
+            CheckUpdateResult result = new CheckUpdateResult();
+            result.setNeedUpdate(!StrUtil.equals(oldVersion, newVersion) || CollUtil.isNotEmpty(modifyFileModels));
+            result.setAppName(requestBody.getAppName());
+            result.setOldVersion(oldVersion);
+            result.setNewVersion(newVersion);
+            result.setModifyFileModels(modifyFileModels);
+            return result;
         }
     }
 }

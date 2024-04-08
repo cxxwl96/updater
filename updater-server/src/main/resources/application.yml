@@ -17,6 +17,9 @@ spring:
       max-request-size: 1GB # 连续上传文件大小
 app:
   repository: AppRepository
+  default-ignore-files:
+    - __MACOSX
+    - .DS_Store
   ignore-files: # 忽略的文件将被删除
     auto-answer: # 被忽略的应用
       - __MACOSX
