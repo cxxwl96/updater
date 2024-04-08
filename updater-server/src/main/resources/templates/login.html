@@ -10,6 +10,7 @@
             height: 100vh;
             background: #fafafa;
         }
+
         .page-center {
             height: 100vh;
             /*垂直居中*/
@@ -21,9 +22,11 @@
             left: 50%;
             transform: translateX(-50%);
         }
+
         .login-box {
             width: 400px;
         }
+
         .login-submit {
             margin: 20px 0;
             width: 100%;
@@ -42,7 +45,8 @@
         </div>
     </form>
     <el-card class="login-box">
-        <el-form :model="formData" :rules="rules" ref="formData" v-loading="loading" @keyup.native.enter="submitForm('formData')">
+        <el-form :model="formData" :rules="rules" ref="formData" v-loading="loading"
+                 @keyup.native.enter="submitForm('formData')">
             <el-form-item>
                 <h2 style="text-align: center">Updater Login</h2>
             </el-form-item>
@@ -75,10 +79,10 @@
                 },
                 rules: {
                     username: [
-                        { required: true, message: '请输入账号', trigger: 'blur' },
+                        {required: true, message: '请输入账号', trigger: 'blur'},
                     ],
                     password: [
-                        { required: true, message: '请输入密码', trigger: 'blur' },
+                        {required: true, message: '请输入密码', trigger: 'blur'},
                     ],
                 }
             }

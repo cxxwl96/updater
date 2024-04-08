@@ -32,11 +32,14 @@
                                 <el-tag v-if="node.level===1" effect="dark" size="mini" type="success">应用</el-tag>
                                 <el-tag v-if="node.level===2" effect="dark" size="mini">版本</el-tag>
                                 <span>{{ data.name }}</span>
-                                <el-tag v-if="node.level===1" v-text="latestVersion(data.name)" effect="plain" size="mini"></el-tag>
-                                <el-tooltip v-if="node.level===1 || node.level===2" content="复制下载链接" effect="dark" placement="bottom">
+                                <el-tag v-if="node.level===1" v-text="latestVersion(data.name)" effect="plain"
+                                        size="mini"></el-tag>
+                                <el-tooltip v-if="node.level===1 || node.level===2" content="复制下载链接" effect="dark"
+                                            placement="bottom">
                                     <i class="el-icon-copy-document" @click.stop="copyDownloadUrl(node, data)"></i>
                                 </el-tooltip>
-                                <el-tooltip v-if="node.level===1 || node.level===2" content="下载" effect="dark" placement="bottom">
+                                <el-tooltip v-if="node.level===1 || node.level===2" content="下载" effect="dark"
+                                            placement="bottom">
                                     <i class="el-icon-download" @click.stop="download(node, data)"></i>
                                 </el-tooltip>
                             </div>

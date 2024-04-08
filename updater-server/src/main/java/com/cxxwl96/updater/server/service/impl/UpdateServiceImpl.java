@@ -171,7 +171,7 @@ public class UpdateServiceImpl implements UpdateService {
     }
 
     /**
-     * 下载最新应用
+     * 下载应用
      *
      * @param appName app name
      * @param version version
@@ -200,7 +200,7 @@ public class UpdateServiceImpl implements UpdateService {
 
         File singleFile = appRepository.getSingleInContentFile(appName, version, path, true);
 
-        dealDownload(response, singleFile, appName + "-" + version + ".zip");
+        dealDownload(response, singleFile, singleFile.getName());
     }
 
     private void deleteIgnoredFiles(List<String> ignoredFiles, List<String> defaultIgnoreFiles, File file) {

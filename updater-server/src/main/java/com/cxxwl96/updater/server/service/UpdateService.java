@@ -57,7 +57,7 @@ public interface UpdateService {
     void downloadLatest(String appName, HttpServletResponse response);
 
     /**
-     * 下载最新应用
+     * 下载应用
      *
      * @param appName app name
      * @param version version

@@ -38,6 +38,7 @@ public interface RepositoryService {
 
     /**
      * 获取应用最新版本
+     *
      * @param appName app name
      * @return 应用最新版本
      */

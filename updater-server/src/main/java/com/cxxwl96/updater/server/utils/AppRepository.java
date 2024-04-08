@@ -133,7 +133,7 @@ public class AppRepository {
      * @return 应用最新版本zip包路径
      */
     public File getLatestAppZipFile(String appName, boolean checkExist) {
-        String latestVersion = getLatestVersion(appName, true, true);
+        String latestVersion = getLatestVersion(appName, checkExist, true);
         return getZipFile(appName, latestVersion, checkExist);
     }
 
@@ -162,7 +162,7 @@ public class AppRepository {
      */
     public String getLatestVersion(String appName, boolean checkExist, boolean checkVersionBlank) {
         File latestFile = getLatestFile(appName, checkExist);
-        String latestVersion = FileUtil.readUtf8String(latestFile);
+        String latestVersion = FileUtil.readUtf8String(latestFile).trim();
         if (checkVersionBlank) {
             Assert.notBlank(latestVersion, () -> new BadRequestException("没有最新版本"));
         }
