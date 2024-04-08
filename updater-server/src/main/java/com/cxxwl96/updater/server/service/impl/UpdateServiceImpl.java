@@ -149,11 +149,16 @@ public class UpdateServiceImpl implements UpdateService {
         String checksum = FileUtil.readUtf8String(latestChecksumFile);
         UpdateModel latestUpdateModel = ChecksumUtil.parseChecksum(checksum);
 
-        // 补充额外的CheckList
-        addCheckListFileModel(latestUpdateModel);
+        List<FileModel> modifyFileModels = compareAppFiles(latestUpdateModel.getFiles(), model.getFiles());
 
-        List<FileModel> fileModels = compareAppFiles(latestUpdateModel, model);
-        latestUpdateModel.setFiles(fileModels);
+        // 如果有变更的文件，则补充额外的CheckList
+        if (modifyFileModels.stream().anyMatch(fileModel -> fileModel.getOption() != null)) {
+            // 补充额外的CheckList
+            FileModel fileModel = buildCheckListFileModel(latestUpdateModel.getAppName(), latestUpdateModel.getVersion());
+            modifyFileModels.add(fileModel);
+        }
+
+        latestUpdateModel.setFiles(modifyFileModels);
         return Result.success(latestUpdateModel);
     }
 
@@ -219,9 +224,7 @@ public class UpdateServiceImpl implements UpdateService {
         }
     }
 
-    private void addCheckListFileModel(UpdateModel latestUpdateModel) {
-        String appName = latestUpdateModel.getAppName();
-        String version = latestUpdateModel.getVersion();
+    private FileModel buildCheckListFileModel(String appName, String version) {
         // 添加Checksum文件
         File checksumFile = appRepository.getChecksumFile(appName, version, true);
         File contentFile = appRepository.getContentFile(appName, version, true);
@@ -233,48 +236,46 @@ public class UpdateServiceImpl implements UpdateService {
         } else if (path.startsWith("./")) {
             path = path.substring(2);
         }
-        FileModel fileModel = checksumFileModel.setOption(FileOption.ADD).setPath(path);
-        latestUpdateModel.getFiles().add(fileModel);
+        return checksumFileModel.setOption(FileOption.ADD).setPath(path);
     }
 
-    private List<FileModel> compareAppFiles(UpdateModel latestUpdateModel, UpdateModel model) {
+    private List<FileModel> compareAppFiles(List<FileModel> latestFileModels, List<FileModel> fileModels) {
         // 用户file
-        List<FileModel> files = model.getFiles();
-        if (CollUtil.isEmpty(files)) {
-            return latestUpdateModel.getFiles().stream().map(file -> file.setOption(FileOption.ADD)).collect(Collectors.toList());
+        if (CollUtil.isEmpty(fileModels)) {
+            return latestFileModels.stream().map(fileModel -> fileModel.setOption(FileOption.ADD)).collect(Collectors.toList());
         }
         // 系统file
-        List<FileModel> latestFiles = CollUtil.newArrayList(latestUpdateModel.getFiles());
+        List<FileModel> modifyFileModels = CollUtil.newArrayList(latestFileModels);
 
         // 转为map
-        Map<String, FileModel> fileMap = new HashMap<>();
-        for (FileModel file : files) {
-            fileMap.put(file.getPath(), file);
+        Map<String, FileModel> fileModelMap = new HashMap<>();
+        for (FileModel fileModel : fileModels) {
+            fileModelMap.put(fileModel.getPath(), fileModel);
         }
-        Map<String, FileModel> latestFileMap = new HashMap<>();
-        for (FileModel file : latestFiles) {
-            latestFileMap.put(file.getPath(), file);
+        Map<String, FileModel> latestFileModelMap = new HashMap<>();
+        for (FileModel fileModel : modifyFileModels) {
+            latestFileModelMap.put(fileModel.getPath(), fileModel);
         }
 
         // 新增、修改
-        for (FileModel latestFile : latestFiles) {
-            FileModel file = fileMap.get(latestFile.getPath());
+        for (FileModel latestFileModel : modifyFileModels) {
+            FileModel file = fileModelMap.get(latestFileModel.getPath());
             if (file == null) {
-                latestFile.setOption(FileOption.ADD);
-            } else if (!latestFile.getCrc32().equals(file.getCrc32())) {
-                latestFile.setOption(FileOption.OVERWRITE);
+                latestFileModel.setOption(FileOption.ADD);
+            } else if (!latestFileModel.getCrc32().equals(file.getCrc32())) {
+                latestFileModel.setOption(FileOption.OVERWRITE);
             }
         }
 
         // 删除
-        for (FileModel file : files) {
-            if (!latestFileMap.containsKey(file.getPath())) {
-                file.setOption(FileOption.DELETE);
-                latestFiles.add(file);
+        for (FileModel fileModel : fileModels) {
+            if (!latestFileModelMap.containsKey(fileModel.getPath())) {
+                fileModel.setOption(FileOption.DELETE);
+                modifyFileModels.add(fileModel);
             }
         }
 
-        return latestFiles;
+        return modifyFileModels;
     }
 
     private void dealDownload(HttpServletResponse response, File file, String filename) {

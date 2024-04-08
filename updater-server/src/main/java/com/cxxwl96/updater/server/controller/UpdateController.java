@@ -28,11 +28,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.StandardCharsets;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.net.URLDecoder;
 
 /**
  * UpdateController
@@ -56,6 +59,7 @@ public class UpdateController {
         String baseUri = String.format("/update/%s/%s", appName, version);
         String path = request.getRequestURI().substring(baseUri.length());
         String pathRelativeToContent = path.startsWith("/") ? path.substring(1) : path;
+        pathRelativeToContent = URLDecoder.decodeForPath(pathRelativeToContent, StandardCharsets.UTF_8);
 
         UpdateModel model = new UpdateModel().setAppName(appName)
             .setVersion(version)

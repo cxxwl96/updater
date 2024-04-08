@@ -37,6 +37,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.StreamProgress;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.net.URLEncodeUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -53,7 +54,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MainClass {
     private static String host = "http://localhost:8000";
 
-    private static String downloadPath = "./logs/download/";
+    private static String appRootPath = "./logs/app/";
 
     public static void main(String[] args) {
         SpringApplication.run(MainClass.class, args);
@@ -72,10 +73,11 @@ public class MainClass {
     }
 
     private static void update(CheckUpdateResult result) {
-        String url = String.format("%s/update/%s/%s/", host, result.getAppName(), result.getNewVersion());
+        String baseUrl = String.format("%s/update/%s/%s/", host, result.getAppName(), result.getNewVersion());
         for (FileModel fileModel : result.getModifyFileModels()) {
-            File file = FileUtil.newFile(downloadPath + fileModel.getPath());
-            HttpUtil.downloadFile(url + fileModel.getPath(), file, 3000, new StreamProgress() {
+            File file = FileUtil.newFile(appRootPath + fileModel.getPath());
+            String url = baseUrl + fileModel.getPath();
+            HttpUtil.downloadFile(url, file, 3000, new StreamProgress() {
                 @Override
                 public void start() {
                     log.info("更新文件: {}", fileModel.getPath());
@@ -95,7 +97,7 @@ public class MainClass {
     }
 
     private static CheckUpdateResult checkUpdate() {
-        File checksumFile = FileUtil.newFile(Constant.CHECKLIST);
+        File checksumFile = FileUtil.newFile(appRootPath + Constant.CHECKLIST);
         if (!checksumFile.exists()) {
             log.warn("没有找到CHECKLIST文件, 将自动生成CHECKLIST文件");
             String checksumHeader = ChecksumUtil.checksumHeader(null, null);
