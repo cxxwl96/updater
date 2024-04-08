@@ -284,8 +284,9 @@ public class UpdateServiceImpl implements UpdateService {
                 URLEncoder.encode(filename, "UTF-8"));
             // 响应头设置
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-            response.setHeader("content-type", "application/x-zip-compressed;charset=UTF-8");
+            response.setHeader("Content-type", "application/x-zip-compressed;charset=UTF-8");
             response.setHeader("Content-Disposition", contentDisposition);
+            response.setHeader("Content-Length", String.valueOf(file.length()));
             response.setHeader("Access-Control-Allow-Origin", "*"); // 实现跨域下载
 
             IoUtil.copy(is, os);

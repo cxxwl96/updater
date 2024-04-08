@@ -24,12 +24,15 @@ import com.cxxwl96.updater.api.model.FileModel;
 import com.cxxwl96.updater.api.model.Result;
 import com.cxxwl96.updater.api.model.UpdateModel;
 import com.cxxwl96.updater.api.utils.ChecksumUtil;
+import com.cxxwl96.updater.api.utils.PrettyUtil;
 import com.cxxwl96.updater.client.model.CheckUpdateResult;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,7 +87,7 @@ public class MainClass {
 
                 @Override
                 public void progress(long total, long progressSize) {
-                    log.info("更新文件: {} {}/{}", fileModel.getPath(), progressSize, total);
+                    log.info("更新文件: {} {}/{}", fileModel.getPath(), PrettyUtil.prettySize(progressSize), PrettyUtil.prettySize(total));
                 }
 
                 @Override
