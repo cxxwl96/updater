@@ -31,8 +31,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +39,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.StreamProgress;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.net.URLEncodeUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -78,7 +78,7 @@ public class MainClass {
         String baseUrl = String.format("%s/update/%s/%s/", host, result.getAppName(), result.getNewVersion());
         for (FileModel fileModel : result.getModifyFileModels()) {
             File file = FileUtil.newFile(appRootPath + fileModel.getPath());
-            String url = baseUrl + fileModel.getPath();
+            String url = URLEncodeUtil.encode(baseUrl + fileModel.getPath(), StandardCharsets.UTF_8);
             HttpUtil.downloadFile(url, file, 3000, new StreamProgress() {
                 @Override
                 public void start() {

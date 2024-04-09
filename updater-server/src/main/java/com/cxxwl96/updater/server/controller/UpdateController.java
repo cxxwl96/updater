@@ -36,6 +36,7 @@ import javax.validation.Valid;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.net.URLDecoder;
+import cn.hutool.core.net.URLEncodeUtil;
 
 /**
  * UpdateController
@@ -56,10 +57,10 @@ public class UpdateController {
     @GetMapping("/update/{appName}/{version}/**")
     public void update(@PathVariable String appName, @PathVariable String version, HttpServletRequest request,
         HttpServletResponse response) {
-        String baseUri = String.format("/update/%s/%s", appName, version);
+        String baseUri = URLEncodeUtil.encode(String.format("/update/%s/%s", appName, version), StandardCharsets.UTF_8);
         String path = request.getRequestURI().substring(baseUri.length());
         String pathRelativeToContent = path.startsWith("/") ? path.substring(1) : path;
-        pathRelativeToContent = URLDecoder.decodeForPath(pathRelativeToContent, StandardCharsets.UTF_8);
+        pathRelativeToContent = URLDecoder.decode(pathRelativeToContent, StandardCharsets.UTF_8);
 
         UpdateModel model = new UpdateModel().setAppName(appName)
             .setVersion(version)
