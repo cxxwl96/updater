@@ -26,6 +26,8 @@ import com.cxxwl96.updater.api.model.UpdateModel;
 import com.cxxwl96.updater.api.utils.ChecksumUtil;
 import com.cxxwl96.updater.api.utils.PrettyUtil;
 import com.cxxwl96.updater.client.model.CheckUpdateResult;
+import com.cxxwl96.updater.client.views.controller.UpdatingController;
+import com.cxxwl96.updater.client.views.util.FXMLUtil;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -43,6 +45,8 @@ import cn.hutool.core.net.URLEncodeUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import javafx.application.Application;
+import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -53,25 +57,36 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @SpringBootApplication
-public class MainClass {
+public class MainClass extends Application {
     private static String host = "http://localhost:8000";
 
     private static String appRootPath = "./logs/app/";
 
     public static void main(String[] args) {
+        // 启动Spring容器
         SpringApplication.run(MainClass.class, args);
 
-        CheckUpdateResult result = checkUpdate();
+        // CheckUpdateResult result = checkUpdate();
+        //
+        // if (!result.isNeedUpdate()) {
+        //     // 版本相同且没有需要变更的文件则无需更新
+        //     log.info("已是最新版本: {}", result.getNewVersion());
+        // } else {
+        //     log.info("检查到新版本");
+        //     log.info("当前版本: {}", result.getOldVersion());
+        //     log.info("新版本: {}", result.getNewVersion());
+        //     update(result);
+        // }
 
-        if (!result.isNeedUpdate()) {
-            // 版本相同且没有需要变更的文件则无需更新
-            log.info("已是最新版本: {}", result.getNewVersion());
-        } else {
-            log.info("检查到新版本");
-            log.info("当前版本: {}", result.getOldVersion());
-            log.info("新版本: {}", result.getNewVersion());
-            update(result);
-        }
+        // 启动javafx应用
+        Application.launch(MainClass.class, args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        Stage stage = FXMLUtil.loadStage(UpdatingController.class);
+        stage.show();
+
     }
 
     private static void update(CheckUpdateResult result) {

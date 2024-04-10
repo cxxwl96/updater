@@ -44,7 +44,7 @@
                 </VBox>
             </HBox>
         </VBox>
-        <ImageView fitWidth="80.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS">
+        <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS">
             <Image url="/assets/imgs/update_client.png"/>
         </ImageView>
     </HBox>
@@ -53,7 +53,7 @@
             <Label style="-fx-font-size: 10px; -fx-text-fill: #868686;" text="Power by: cxxwl96@sina.com"/>
         </HBox>
         <Hyperlink fx:id="downloadLatestBtn" style="-fx-font-size: 10px;" text="下载完整软件包"/>
-        <Button fx:id="cancelBtn" mnemonicParsing="false" styleClass="jfx-button, jfx-button-flat" text="下次更新"/>
+        <Button fx:id="cancelBtn" mnemonicParsing="false" styleClass="jfx-button-flat" text="下次更新"/>
         <Button fx:id="updateBtn" mnemonicParsing="false" styleClass="jfx-button" text="立即更新"/>
     </HBox>
 </VBox>
