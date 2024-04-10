@@ -39,19 +39,20 @@ public class FXMLUtil {
     @SneakyThrows
     public static <T extends IController> Stage loadStage(Class<T> controllerClass) {
         final ViewController annotation = controllerClass.getDeclaredAnnotation(ViewController.class);
-        Parent root = load(controllerClass);
+        T controller = controllerClass.newInstance();
+        Parent root = load(controllerClass, controller);
         Stage stage = new Stage();
         stage.setScene(new Scene(root));
         stage.setTitle(annotation.title());
         stage.getIcons().add(new Image(annotation.iconPath()));
+        controller.initialize(root);
         return stage;
     }
 
     @SneakyThrows
-    public static <T extends IController> Parent load(Class<T> controllerClass) {
+    private static <T extends IController> Parent load(Class<T> controllerClass, T controller) {
         final ViewController annotation = controllerClass.getDeclaredAnnotation(ViewController.class);
         Assert.notNull(annotation, () -> new NullPointerException("Not ViewController"));
-        T controller = controllerClass.newInstance();
         final String path = annotation.value();
         final InputStream inputStream = controllerClass.getResourceAsStream(path);
         final FXMLLoader loader = new FXMLLoader();

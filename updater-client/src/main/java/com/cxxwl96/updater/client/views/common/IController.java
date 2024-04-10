@@ -16,6 +16,8 @@
 
 package com.cxxwl96.updater.client.views.common;
 
+import javafx.scene.Parent;
+
 /**
  * IController
  *
@@ -23,4 +25,6 @@ package com.cxxwl96.updater.client.views.common;
  * @since 2024/04/10 21:50
  */
 public interface IController {
+    default void initialize(Parent parent) {
+    }
 }

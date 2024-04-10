@@ -26,11 +26,8 @@ import com.cxxwl96.updater.api.model.UpdateModel;
 import com.cxxwl96.updater.api.utils.ChecksumUtil;
 import com.cxxwl96.updater.api.utils.PrettyUtil;
 import com.cxxwl96.updater.client.model.CheckUpdateResult;
-import com.cxxwl96.updater.client.views.controller.UpdatingController;
+import com.cxxwl96.updater.client.views.controller.IndexController;
 import com.cxxwl96.updater.client.views.util.FXMLUtil;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -56,16 +53,12 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2024/3/30 23:28
  */
 @Slf4j
-@SpringBootApplication
 public class MainClass extends Application {
     private static String host = "http://localhost:8000";
 
     private static String appRootPath = "./logs/app/";
 
     public static void main(String[] args) {
-        // 启动Spring容器
-        SpringApplication.run(MainClass.class, args);
-
         // CheckUpdateResult result = checkUpdate();
         //
         // if (!result.isNeedUpdate()) {
@@ -77,14 +70,14 @@ public class MainClass extends Application {
         //     log.info("新版本: {}", result.getNewVersion());
         //     update(result);
         // }
-
+        log.info("start");
         // 启动javafx应用
         Application.launch(MainClass.class, args);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Stage stage = FXMLUtil.loadStage(UpdatingController.class);
+        Stage stage = FXMLUtil.loadStage(IndexController.class);
         stage.show();
 
     }
