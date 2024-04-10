@@ -25,7 +25,7 @@ import com.cxxwl96.updater.client.views.common.IController;
  * @author cxxwl96
  * @since 2024/04/10 21:42
  */
-@ViewController(value = "/views/Updating.fxml", title = "更新程序", iconPath = "/assets/imgs/logo.png")
-public class UpdatingController implements IController {
+@ViewController(value = "/views/Update.fxml", title = "更新程序", iconPath = "/assets/imgs/logo.png")
+public class UpdateController implements IController {
 
 }
