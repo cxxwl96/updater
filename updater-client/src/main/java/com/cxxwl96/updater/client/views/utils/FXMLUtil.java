@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.cxxwl96.updater.client.views.util;
+package com.cxxwl96.updater.client.views.utils;
 
 import com.cxxwl96.updater.client.views.annotations.ViewController;
 import com.cxxwl96.updater.client.views.common.IController;
@@ -37,10 +37,10 @@ import lombok.SneakyThrows;
  */
 public class FXMLUtil {
     @SneakyThrows
-    public static <T extends IController> Stage loadStage(Class<T> controllerClass) {
+    public static <T extends IController> Stage loadStage(T controller) {
+        Class<? extends IController> controllerClass = controller.getClass();
         final ViewController annotation = controllerClass.getDeclaredAnnotation(ViewController.class);
-        T controller = controllerClass.newInstance();
-        Parent root = load(controllerClass, controller);
+        Parent root = load(controller);
         Stage stage = new Stage();
         stage.setScene(new Scene(root));
         stage.setTitle(annotation.title());
@@ -50,7 +50,8 @@ public class FXMLUtil {
     }
 
     @SneakyThrows
-    private static <T extends IController> Parent load(Class<T> controllerClass, T controller) {
+    public static <T extends IController> Parent load(T controller) {
+        Class<? extends IController> controllerClass = controller.getClass();
         final ViewController annotation = controllerClass.getDeclaredAnnotation(ViewController.class);
         Assert.notNull(annotation, () -> new NullPointerException("Not ViewController"));
         final String path = annotation.value();

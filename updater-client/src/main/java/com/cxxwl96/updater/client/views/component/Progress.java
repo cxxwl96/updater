@@ -19,6 +19,7 @@ package com.cxxwl96.updater.client.views.component;
 import cn.hutool.core.lang.func.VoidFunc0;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -37,6 +38,8 @@ public class Progress extends VBox {
     private final SimpleDoubleProperty progress = new SimpleDoubleProperty(this, "progress", 0);
 
     private final SimpleObjectProperty<Type> type = new SimpleObjectProperty<>(Type.PRIMARY);
+
+    private final SimpleStringProperty labelValue = new SimpleStringProperty(this, "labelValue", "");
 
     @Setter
     private VoidFunc0 onComplete;
@@ -58,6 +61,10 @@ public class Progress extends VBox {
     }
 
     public Progress() {
+        init();
+    }
+
+    private void init() {
         HBox progressBox = new HBox();
         progressBox.setStyle("-fx-background-color: " + type.get().getFrontColor());
 
@@ -68,7 +75,9 @@ public class Progress extends VBox {
         HBox.setHgrow(innerBox, Priority.ALWAYS);
 
         Label label = new Label();
+        label.setWrapText(true);
         label.setStyle("-fx-font-size: 10");
+        label.textProperty().bindBidirectional(labelValue);
         label.setText(((int) (progress.doubleValue() * 100)) + "%");
 
         HBox outerBox = new HBox(innerBox, label);
@@ -124,5 +133,17 @@ public class Progress extends VBox {
 
     public void setType(Type type) {
         this.type.set(type);
+    }
+
+    public String getLabelValue() {
+        return labelValue.get();
+    }
+
+    public SimpleStringProperty labelValueProperty() {
+        return labelValue;
+    }
+
+    public void setLabelValue(String labelValue) {
+        this.labelValue.set(labelValue);
     }
 }

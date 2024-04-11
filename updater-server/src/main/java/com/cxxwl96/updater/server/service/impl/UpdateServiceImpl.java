@@ -146,8 +146,8 @@ public class UpdateServiceImpl implements UpdateService {
         String latestVersion = appRepository.getLatestVersion(appName, true, true);
         File latestChecksumFile = appRepository.getChecksumFile(appName, latestVersion, true);
 
-        String checksum = FileUtil.readUtf8String(latestChecksumFile);
-        UpdateModel latestUpdateModel = ChecksumUtil.parseChecksum(checksum);
+        String latestChecksum = FileUtil.readUtf8String(latestChecksumFile);
+        UpdateModel latestUpdateModel = ChecksumUtil.parseChecksum(latestChecksum);
 
         List<FileModel> modifyFileModels = compareAppFiles(latestUpdateModel.getFiles(), model.getFiles());
 
@@ -156,6 +156,14 @@ public class UpdateServiceImpl implements UpdateService {
             // 补充额外的CheckList
             FileModel fileModel = buildCheckListFileModel(latestUpdateModel.getAppName(), latestUpdateModel.getVersion());
             modifyFileModels.add(fileModel);
+        }
+
+        // 填充文件大小
+        for (FileModel fileModel : modifyFileModels) {
+            File file = appRepository.getSingleInContentFile(appName, latestVersion, fileModel.getPath(), true);
+            if (file.isFile()) {
+                fileModel.setSize(file.length());
+            }
         }
 
         latestUpdateModel.setFiles(modifyFileModels);

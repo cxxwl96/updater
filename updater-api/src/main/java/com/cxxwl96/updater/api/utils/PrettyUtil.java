@@ -40,6 +40,10 @@ public class PrettyUtil {
     private static final String[] unit = new String[] {"TB", "GB", "MB", "KB"};
 
     public static String prettySize(long size) {
+        return prettySize(size, 2);
+    }
+
+    public static String prettySize(long size, int scale) {
         int index = sizeArray.length - 1;
         for (int i = 0; i < sizeArray.length; i++) {
             if (size >= sizeArray[i]) {

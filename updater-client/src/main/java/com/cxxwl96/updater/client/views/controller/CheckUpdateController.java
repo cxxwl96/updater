@@ -14,31 +14,18 @@
  * limitations under the License.
  */
 
-package com.cxxwl96.updater.client.model;
+package com.cxxwl96.updater.client.views.controller;
 
-import com.cxxwl96.updater.api.model.FileModel;
-
-import java.util.List;
-
-import lombok.Data;
+import com.cxxwl96.updater.client.views.annotations.ViewController;
+import com.cxxwl96.updater.client.views.common.IController;
 
 /**
- * CheckUpdateResult
+ * CheckUpdateController
  *
  * @author cxxwl96
- * @since 2024/04/08 19:28
+ * @since 2024/04/10 21:42
  */
-@Data
-public class CheckUpdateResult {
-    private boolean needUpdate;
+@ViewController(value = "/views/CheckUpdate.fxml", title = "正在检查更新...", iconPath = "/assets/imgs/logo.png")
+public class CheckUpdateController implements IController {
 
-    private String appName;
-
-    private String oldVersion;
-
-    private String newVersion;
-
-    private List<FileModel> modifyFileModels;
-
-    private long totalSize;
 }
