@@ -66,7 +66,7 @@ public class MainClass extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         Stage checkUpdateStage = FXMLUtil.loadStage(new CheckUpdateController());
         checkUpdateStage.show();
 
@@ -75,7 +75,7 @@ public class MainClass extends Application {
             CheckUpdateResult result;
             try {
                 result = checkUpdate();
-            } catch (BadRequestException exception) {
+            } catch (Exception exception) {
                 log.error(exception.getMessage(), exception);
                 Platform.runLater(() -> {
                     Alert alert = new Alert(Alert.AlertType.ERROR, exception.getMessage());
