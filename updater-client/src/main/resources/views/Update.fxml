@@ -3,12 +3,11 @@
 <?import com.cxxwl96.updater.client.views.component.Progress?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 <VBox spacing="10.0" prefHeight="300.0" prefWidth="600.0" style="-fx-background-color: white;"
       stylesheets="/assets/css/app.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <padding>
@@ -31,17 +30,11 @@
             </VBox>
         </HBox>
         <HBox alignment="CENTER_LEFT" spacing="10.0">
-            <Label fx:id="titleLabel1" style="-fx-font-size: 14;" text="总进度: " wrapText="true">
-                <font>
-                    <Font size="10.0"/>
-                </font>
-            </Label>
-            <Progress fx:id="totalProgress" HBox.hgrow="ALWAYS"/>
+            <Label fx:id="titleLabel1" style="-fx-font-size: 13;" text="总进度: " wrapText="true"/>
+            <Progress fx:id="totalProgress" progressHeight="10" HBox.hgrow="ALWAYS"/>
         </HBox>
-        <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS"
-                    style="-fx-border-color: rgba(185, 185, 185, .8)">
-            <VBox fx:id="listBox" style="-fx-background-color: white; -fx-padding: 10px" spacing="20"/>
-        </ScrollPane>
+        <ListView fx:id="listBox" VBox.vgrow="ALWAYS"
+                  style="-fx-background-color: white;-fx-border-color: rgba(185, 185, 185, .8)"/>
     </VBox>
     <HBox alignment="CENTER_LEFT">
         <Label style="-fx-font-size: 12px; -fx-text-fill: #868686;" text="Power by: cxxwl96@sina.com"/>

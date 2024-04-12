@@ -24,6 +24,7 @@ import com.cxxwl96.updater.client.model.CheckUpdateResult;
 import com.cxxwl96.updater.client.views.annotations.ViewController;
 import com.cxxwl96.updater.client.views.common.IController;
 import com.cxxwl96.updater.client.views.component.Progress;
+import com.cxxwl96.updater.client.views.utils.FXMLUtil;
 
 import java.io.File;
 import java.net.URLEncoder;
@@ -41,11 +42,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lombok.extern.slf4j.Slf4j;
 
@@ -72,10 +70,7 @@ public class UpdateController implements IController {
     private Progress totalProgress;
 
     @FXML
-    private ScrollPane scrollPane;
-
-    @FXML
-    private VBox listBox;
+    private ListView<Parent> listBox;
 
     private final CheckUpdateResult result;
 
@@ -107,7 +102,6 @@ public class UpdateController implements IController {
 
         totalProgress.setOnComplete(() -> {
             totalProgress.setType(Progress.Type.SUCCESS);
-            scrollPane.setVvalue(1); // 滚动条置底
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "应用更新成功，请重启应用");
             alert.show();
         });
@@ -133,38 +127,38 @@ public class UpdateController implements IController {
                     }
                     continue;
                 }
-                Label pathLabel = new Label(fileModel.getPath());
-                pathLabel.setStyle("-fx-font-size: 12;");
-                pathLabel.setTooltip(new Tooltip(fileModel.getPath()));
-                VBox pathVBox = new VBox(pathLabel);
-                HBox.setHgrow(pathVBox, Priority.ALWAYS);
+                ProgressItemController progressItemController = new ProgressItemController();
+                Parent progressItemNode = FXMLUtil.load(progressItemController);
+                ((VBox) progressItemNode).prefWidthProperty().bind(listBox.widthProperty().subtract(40));
+                progressItemController.init();
 
-                Label progressLabel = new Label();
-                progressLabel.setStyle("-fx-font-size: 12");
-                HBox bottomBox = new HBox(pathVBox, progressLabel);
-                bottomBox.setSpacing(5);
-
-                Progress progress = new Progress();
-                progress.setOnComplete(() -> progress.setType(Progress.Type.SUCCESS));
-                VBox vBox = new VBox(progress, bottomBox);
+                int finalI = i;
                 Platform.runLater(() -> {
-                    listBox.getChildren().add(vBox);
-                    scrollPane.setVvalue(1); // 滚动条置底
+                    listBox.getItems().add(progressItemNode);
+                    listBox.scrollTo(finalI); // 滚动条置底
                 });
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignore) {
+                }
 
                 String url = baseUrl + "?pathRelativeToContent=" + URLEncoder.encode(fileModel.getPath(), StandardCharsets.UTF_8.name());
-                int finalI = i;
+
                 log.info("更新文件: {} {}", fileModel.getPath(), PrettyUtil.prettySize(fileModel.getSize()));
                 HttpUtil.downloadFile(url, file, 3000, new StreamProgress() {
                     @Override
                     public void start() {
+                        Platform.runLater(() -> {
+                            progressItemController.setPath(fileModel.getPath());
+                        });
                     }
 
                     @Override
                     public void progress(long total, long progressSize) {
                         Platform.runLater(() -> {
-                            progress.setProgress(progressSize * 1.0 / total);
-                            progressLabel.setText(PrettyUtil.prettySize(progressSize, 0) + "/" + PrettyUtil.prettySize(total, 0));
+                            progressItemController.setProgress(progressSize * 1.0 / total);
+                            progressItemController.setProgressText(
+                                PrettyUtil.prettySize(progressSize, 1) + "/" + PrettyUtil.prettySize(total, 1));
                         });
                     }
 
@@ -179,7 +173,7 @@ public class UpdateController implements IController {
                                 totalProgress.setProgress(1);
                             } else {
                                 totalProgress.setProgress(finalI * 1.0 / result.getModifyFileModels().size());
-                            } scrollPane.setVvalue(1); // 滚动条置底
+                            }
                         });
                     }
                 });

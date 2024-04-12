@@ -20,16 +20,16 @@
             <VBox VBox.vgrow="ALWAYS" spacing="10">
                 <HBox spacing="10.0" VBox.vgrow="ALWAYS">
                     <VBox spacing="5.0">
-                        <Label style="-fx-font-size: 14;" text="当前版本:"/>
-                        <Label style="-fx-font-size: 14;" text="新版本:"/>
+                        <Label style="-fx-font-size: 13;" text="当前版本:"/>
+                        <Label style="-fx-font-size: 13;" text="新版本:"/>
                     </VBox>
                     <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                        <Label fx:id="oldVersionLabel" style="-fx-font-size: 14;"/>
-                        <Label fx:id="newVersionLabel" style="-fx-font-size: 14;"/>
+                        <Label fx:id="oldVersionLabel" style="-fx-font-size: 13;"/>
+                        <Label fx:id="newVersionLabel" style="-fx-font-size: 13;"/>
                     </VBox>
                 </HBox>
                 <HBox>
-                    <Label fx:id="detailLabel" style="-fx-font-size: 14;"/>
+                    <Label fx:id="detailLabel" style="-fx-font-size: 13;"/>
                 </HBox>
             </VBox>
         </VBox>

@@ -51,7 +51,7 @@ public class PrettyUtil {
                 break;
             }
         }
-        double val = new BigDecimal(size * 1.0 / sizeArray[index]).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        double val = new BigDecimal(size * 1.0 / sizeArray[index]).setScale(scale, RoundingMode.HALF_UP).doubleValue();
         if (((int) val) == val) {
             return ((int) val) + unit[index];
         }

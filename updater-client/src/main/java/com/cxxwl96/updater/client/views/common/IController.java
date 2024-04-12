@@ -25,6 +25,6 @@ import javafx.scene.Parent;
  * @since 2024/04/10 21:50
  */
 public interface IController {
-    default void initialize(Parent parent) {
+    default void initialize(Parent root) {
     }
 }

@@ -37,6 +37,8 @@ import lombok.Setter;
 public class Progress extends VBox {
     private final SimpleDoubleProperty progress = new SimpleDoubleProperty(this, "progress", 0);
 
+    private final SimpleDoubleProperty progressHeight = new SimpleDoubleProperty(this, "progressHeight", 3);
+
     private final SimpleObjectProperty<Type> type = new SimpleObjectProperty<>(Type.PRIMARY);
 
     private final SimpleStringProperty labelValue = new SimpleStringProperty(this, "labelValue", "");
@@ -69,7 +71,7 @@ public class Progress extends VBox {
         progressBox.setStyle("-fx-background-color: " + type.get().getFrontColor());
 
         HBox innerBox = new HBox(progressBox);
-        innerBox.setPrefHeight(5);
+        innerBox.prefHeightProperty().bind(progressHeight);
         innerBox.setStyle("-fx-background-color: #e0e0e0");
         innerBox.setPrefWidth(100);
         HBox.setHgrow(innerBox, Priority.ALWAYS);
@@ -121,6 +123,18 @@ public class Progress extends VBox {
 
     public void setProgress(double progress) {
         this.progress.set(progress);
+    }
+
+    public double getProgressHeight() {
+        return progressHeight.get();
+    }
+
+    public SimpleDoubleProperty progressHeightProperty() {
+        return progressHeight;
+    }
+
+    public void setProgressHeight(double progressHeight) {
+        this.progressHeight.set(progressHeight);
     }
 
     public Type getType() {

@@ -54,7 +54,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class MainClass extends Application {
-    public static String host = "http://localhost:8000";
+    public static String host = "http://updater.cxxwl96.com";
 
     public static String appRootPath = "./logs/app/";
 

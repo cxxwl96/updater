@@ -9,7 +9,6 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 <VBox spacing="20.0" style="-fx-background-color: white;" stylesheets="/assets/css/app.css"
       xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <padding>
@@ -20,18 +19,10 @@
             <Label fx:id="titleLabel" style="-fx-font-size: 16px;" wrapText="true" text="已经是最新版本"/>
             <HBox spacing="10.0" VBox.vgrow="ALWAYS">
                 <VBox spacing="5.0">
-                    <Label style="-fx-font-size: 14;" text="当前版本:">
-                        <font>
-                            <Font size="12.0"/>
-                        </font>
-                    </Label>
+                    <Label style="-fx-font-size: 13;" text="当前版本:"/>
                 </VBox>
                 <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                    <Label fx:id="versionLabel" style="-fx-font-size: 14;">
-                        <font>
-                            <Font size="12.0"/>
-                        </font>
-                    </Label>
+                    <Label fx:id="versionLabel" style="-fx-font-size: 13;"/>
                 </VBox>
             </HBox>
         </VBox>
