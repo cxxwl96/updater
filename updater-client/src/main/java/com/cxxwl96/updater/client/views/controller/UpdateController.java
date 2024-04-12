@@ -124,15 +124,13 @@ public class UpdateController implements IController {
                 FileModel fileModel = result.getModifyFileModels().get(i);
                 File file = FileUtil.newFile(MainClass.appRootPath + fileModel.getPath());
                 // 如果是变更文件则先删除原文件
-                if (fileModel.getOption() == FileOption.DELETE || fileModel.getOption() == FileOption.OVERWRITE) {
+                if (fileModel.getOption() == FileOption.DELETE) {
                     try {
                         if (file.exists()) {
                             FileUtil.del(file);
                         }
                     } catch (Exception ignored) {
                     }
-                }
-                if (fileModel.getOption() == FileOption.DELETE) {
                     continue;
                 }
                 Label pathLabel = new Label(fileModel.getPath());
