@@ -26,6 +26,7 @@ import com.cxxwl96.updater.client.views.common.IController;
 import com.cxxwl96.updater.client.views.component.Progress;
 
 import java.io.File;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -33,7 +34,6 @@ import java.util.concurrent.Executors;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.StreamProgress;
-import cn.hutool.core.net.URLEncodeUtil;
 import cn.hutool.http.HttpUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -43,6 +43,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -59,6 +60,12 @@ import lombok.extern.slf4j.Slf4j;
 public class UpdateController implements IController {
 
     @FXML
+    private Label titleLabel;
+
+    @FXML
+    private ImageView successImg;
+
+    @FXML
     private Label detailLabel;
 
     @FXML
@@ -68,7 +75,7 @@ public class UpdateController implements IController {
     private ScrollPane scrollPane;
 
     @FXML
-    private VBox listVbox;
+    private VBox listBox;
 
     private final CheckUpdateResult result;
 
@@ -112,7 +119,7 @@ public class UpdateController implements IController {
 
     private void update() {
         try {
-            String baseUrl = String.format("%s/update/%s/%s/", MainClass.host, result.getAppName(), result.getNewVersion());
+            String baseUrl = String.format("%s/update/%s/%s", MainClass.host, result.getAppName(), result.getNewVersion());
             for (int i = 0; i < result.getModifyFileModels().size(); i++) {
                 FileModel fileModel = result.getModifyFileModels().get(i);
                 File file = FileUtil.newFile(MainClass.appRootPath + fileModel.getPath());
@@ -125,14 +132,17 @@ public class UpdateController implements IController {
                     } catch (Exception ignored) {
                     }
                 }
+                if (fileModel.getOption() == FileOption.DELETE) {
+                    continue;
+                }
                 Label pathLabel = new Label(fileModel.getPath());
-                pathLabel.setStyle("-fx-font-size: 10;");
+                pathLabel.setStyle("-fx-font-size: 12;");
                 pathLabel.setTooltip(new Tooltip(fileModel.getPath()));
                 VBox pathVBox = new VBox(pathLabel);
                 HBox.setHgrow(pathVBox, Priority.ALWAYS);
 
                 Label progressLabel = new Label();
-                progressLabel.setStyle("-fx-font-size: 10");
+                progressLabel.setStyle("-fx-font-size: 12");
                 HBox bottomBox = new HBox(pathVBox, progressLabel);
                 bottomBox.setSpacing(5);
 
@@ -140,16 +150,16 @@ public class UpdateController implements IController {
                 progress.setOnComplete(() -> progress.setType(Progress.Type.SUCCESS));
                 VBox vBox = new VBox(progress, bottomBox);
                 Platform.runLater(() -> {
-                    listVbox.getChildren().add(vBox);
+                    listBox.getChildren().add(vBox);
                     scrollPane.setVvalue(1); // 滚动条置底
                 });
 
-                String url = URLEncodeUtil.encode(baseUrl + fileModel.getPath(), StandardCharsets.UTF_8);
+                String url = baseUrl + "?pathRelativeToContent=" + URLEncoder.encode(fileModel.getPath(), StandardCharsets.UTF_8.name());
                 int finalI = i;
+                log.info("更新文件: {} {}", fileModel.getPath(), PrettyUtil.prettySize(fileModel.getSize()));
                 HttpUtil.downloadFile(url, file, 3000, new StreamProgress() {
                     @Override
                     public void start() {
-                        log.info("更新文件: {} {}", fileModel.getPath(), PrettyUtil.prettySize(fileModel.getSize()));
                     }
 
                     @Override
@@ -165,11 +175,13 @@ public class UpdateController implements IController {
                         log.info("更新文件成功: {}", fileModel.getPath());
                         Platform.runLater(() -> {
                             if (finalI == result.getModifyFileModels().size() - 1) {
+                                titleLabel.setText("更新成功");
+                                successImg.setManaged(true);
+                                successImg.setVisible(true);
                                 totalProgress.setProgress(1);
                             } else {
                                 totalProgress.setProgress(finalI * 1.0 / result.getModifyFileModels().size());
-                            }
-                            scrollPane.setVvalue(1); // 滚动条置底
+                            } scrollPane.setVvalue(1); // 滚动条置底
                         });
                     }
                 });

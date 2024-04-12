@@ -20,12 +20,18 @@
                 <Image url="/assets/imgs/update_client.png"/>
             </ImageView>
             <VBox alignment="CENTER_LEFT" spacing="5">
-                <Label text="正在更新, 请勿关闭程序" wrapText="true"/>
-                <Label fx:id="detailLabel" wrapText="true" style="-fx-font-size: 10; -fx-opacity: 0.8"/>
+                <HBox spacing="5" alignment="CENTER">
+                    <Label fx:id="titleLabel" text="正在更新, 请勿关闭程序" wrapText="true"/>
+                    <ImageView fx:id="successImg" managed="false" visible="false" fitHeight="20" fitWidth="20"
+                               pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS">
+                        <Image url="/assets/imgs/success.png"/>
+                    </ImageView>
+                </HBox>
+                <Label fx:id="detailLabel" wrapText="true" style="-fx-font-size: 12; -fx-opacity: 0.8"/>
             </VBox>
         </HBox>
         <HBox alignment="CENTER_LEFT" spacing="10.0">
-            <Label fx:id="titleLabel1" style="-fx-font-size: 12;" text="总进度: " wrapText="true">
+            <Label fx:id="titleLabel1" style="-fx-font-size: 14;" text="总进度: " wrapText="true">
                 <font>
                     <Font size="10.0"/>
                 </font>
@@ -34,10 +40,10 @@
         </HBox>
         <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS"
                     style="-fx-border-color: rgba(185, 185, 185, .8)">
-            <VBox fx:id="listVbox" style="-fx-background-color: white; -fx-padding: 10px" spacing="20"/>
+            <VBox fx:id="listBox" style="-fx-background-color: white; -fx-padding: 10px" spacing="20"/>
         </ScrollPane>
     </VBox>
     <HBox alignment="CENTER_LEFT">
-        <Label style="-fx-font-size: 10px; -fx-text-fill: #868686;" text="Power by: cxxwl96@sina.com"/>
+        <Label style="-fx-font-size: 12px; -fx-text-fill: #868686;" text="Power by: cxxwl96@sina.com"/>
     </HBox>
 </VBox>

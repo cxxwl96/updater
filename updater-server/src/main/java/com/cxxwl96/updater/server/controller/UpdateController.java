@@ -26,17 +26,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.nio.charset.StandardCharsets;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.net.URLDecoder;
-import cn.hutool.core.net.URLEncodeUtil;
 
 /**
  * UpdateController
@@ -54,13 +50,9 @@ public class UpdateController {
         return updateService.checkUpdate(model);
     }
 
-    @GetMapping("/update/{appName}/{version}/**")
-    public void update(@PathVariable String appName, @PathVariable String version, HttpServletRequest request,
+    @GetMapping("/update/{appName}/{version}")
+    public void update(@PathVariable String appName, @PathVariable String version, @RequestParam String pathRelativeToContent,
         HttpServletResponse response) {
-        String baseUri = URLEncodeUtil.encode(String.format("/update/%s/%s", appName, version), StandardCharsets.UTF_8);
-        String path = request.getRequestURI().substring(baseUri.length());
-        String pathRelativeToContent = path.startsWith("/") ? path.substring(1) : path;
-        pathRelativeToContent = URLDecoder.decode(pathRelativeToContent, StandardCharsets.UTF_8);
 
         UpdateModel model = new UpdateModel().setAppName(appName)
             .setVersion(version)

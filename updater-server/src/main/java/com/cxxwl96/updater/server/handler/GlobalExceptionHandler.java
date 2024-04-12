@@ -86,7 +86,11 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = BadRequestException.class)
     public Result<?> handler(BadRequestException e) {
-        return e.getResult() != null ? e.getResult() : processFailed(HttpStatus.BAD_REQUEST.value(), e.getMessage(), e);
+        if (e.getResult() != null) {
+            log.error(e.getMessage(), e);
+            return e.getResult();
+        }
+        return processFailed(HttpStatus.BAD_REQUEST.value(), e.getMessage(), e);
     }
 
     /**

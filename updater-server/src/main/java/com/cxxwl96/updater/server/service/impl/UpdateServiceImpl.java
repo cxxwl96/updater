@@ -160,6 +160,10 @@ public class UpdateServiceImpl implements UpdateService {
 
         // 填充文件大小
         for (FileModel fileModel : modifyFileModels) {
+            if (fileModel.getOption() == FileOption.DELETE) {
+                fileModel.setSize(0L);
+                continue;
+            }
             File file = appRepository.getSingleInContentFile(appName, latestVersion, fileModel.getPath(), true);
             if (file.isFile()) {
                 fileModel.setSize(file.length());

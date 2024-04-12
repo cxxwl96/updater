@@ -76,7 +76,7 @@ public class Progress extends VBox {
 
         Label label = new Label();
         label.setWrapText(true);
-        label.setStyle("-fx-font-size: 10");
+        label.setStyle("-fx-font-size: 12");
         label.textProperty().bindBidirectional(labelValue);
         label.setText(((int) (progress.doubleValue() * 100)) + "%");
 

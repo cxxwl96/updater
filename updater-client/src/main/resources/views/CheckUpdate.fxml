@@ -21,7 +21,7 @@
     </VBox>
     <HBox alignment="CENTER_RIGHT" spacing="20.0">
         <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-            <Label style="-fx-font-size: 10px; -fx-text-fill: #868686;" text="Power by: cxxwl96@sina.com"/>
+            <Label style="-fx-font-size: 12px; -fx-text-fill: #868686;" text="Power by: cxxwl96@sina.com"/>
         </HBox>
     </HBox>
 </VBox>
