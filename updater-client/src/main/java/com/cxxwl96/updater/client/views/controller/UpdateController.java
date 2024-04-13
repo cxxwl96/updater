@@ -187,7 +187,7 @@ public class UpdateController implements IController {
             }
         } catch (Exception exception) {
             if (exception instanceof IORuntimeException && exception.getCause() instanceof ClosedByInterruptException) {
-                log.error("Closed by InterruptException");
+                log.warn("Updater application closed by InterruptException");
                 closeThisStage();
                 return;
             }
