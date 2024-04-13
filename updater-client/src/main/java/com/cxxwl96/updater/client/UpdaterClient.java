@@ -105,16 +105,18 @@ public class UpdaterClient extends Application {
         Properties props = SystemUtil.getProps();
         Optional.ofNullable(props.get(PropertyKeys.HOST)).map(Object::toString).ifPresent(val -> UpdaterClient.host = val);
         Optional.ofNullable(props.get(PropertyKeys.APP_PATH)).map(Object::toString).ifPresent(val -> UpdaterClient.appPath = val);
-        Optional.ofNullable(props.get(PropertyKeys.APP_NAME)).map(Object::toString).ifPresent(val -> UpdaterClient.appName = val);
-        Optional.ofNullable(props.get(PropertyKeys.APP_VERSION)).map(Object::toString).ifPresent(val -> UpdaterClient.appVersion = val);
-
         log.info("{}={}", PropertyKeys.HOST, host);
         log.info("{}={}", PropertyKeys.APP_PATH, appPath);
-        log.info("{}={}", PropertyKeys.APP_NAME, appName);
-        log.info("{}={}", PropertyKeys.APP_VERSION, appVersion);
-
         Assert.notBlank(host, "Host is blank");
         Assert.notBlank(appPath, "AppPath is blank");
+    }
+
+    private void initAppInfo() {
+        Properties props = SystemUtil.getProps();
+        Optional.ofNullable(props.get(PropertyKeys.APP_NAME)).map(Object::toString).ifPresent(val -> UpdaterClient.appName = val);
+        Optional.ofNullable(props.get(PropertyKeys.APP_VERSION)).map(Object::toString).ifPresent(val -> UpdaterClient.appVersion = val);
+        log.info("{}={}", PropertyKeys.APP_NAME, appName);
+        log.info("{}={}", PropertyKeys.APP_VERSION, appVersion);
         Assert.notBlank(appName, "AppName is blank");
         Assert.notBlank(appVersion, "AppVersion is blank");
     }
@@ -123,7 +125,7 @@ public class UpdaterClient extends Application {
         File checksumFile = FileUtil.newFile(UpdaterClient.appPath + Constant.CHECKLIST);
         if (!checksumFile.exists()) {
             log.warn("没有找到CHECKLIST文件, 将自动生成CHECKLIST文件: {}", checksumFile.getAbsolutePath());
-
+            initAppInfo();
             String checksumHeader = ChecksumUtil.checksumHeader(appName, appVersion);
             FileUtil.writeUtf8String(checksumHeader, checksumFile);
         }
