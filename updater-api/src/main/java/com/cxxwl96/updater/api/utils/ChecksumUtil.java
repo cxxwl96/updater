@@ -17,6 +17,7 @@
 package com.cxxwl96.updater.api.utils;
 
 import com.cxxwl96.updater.api.exception.BadRequestException;
+import com.cxxwl96.updater.api.model.Constant;
 import com.cxxwl96.updater.api.model.FileModel;
 import com.cxxwl96.updater.api.model.UpdateModel;
 
@@ -70,6 +71,10 @@ public class ChecksumUtil {
         }
         StringBuilder sb = new StringBuilder(checksumHeader(appName, version));
         for (FileModel fileModel : fileModels) {
+            // 不计算checklist文件
+            if (Constant.CHECKLIST.equals(fileModel.getName())) {
+                continue;
+            }
             String path = fileModel.getPath().substring(file.getPath().length());
             if (path.startsWith("/")) {
                 path = path.substring(1);
