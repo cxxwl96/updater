@@ -17,7 +17,7 @@
 package com.cxxwl96.updater.client.views.controller;
 
 import com.cxxwl96.updater.api.utils.PrettyUtil;
-import com.cxxwl96.updater.client.MainClass;
+import com.cxxwl96.updater.client.UpdaterClient;
 import com.cxxwl96.updater.client.model.CheckUpdateResult;
 import com.cxxwl96.updater.client.views.annotations.ViewController;
 import com.cxxwl96.updater.client.views.common.IController;
@@ -80,7 +80,7 @@ public class ConfirmUpdateController implements IController {
         newVersionLabel.setText(result.getNewVersion());
         detailLabel.setText(detail);
         copy.setOnAction(event -> {
-            String url = MainClass.host + "/download/" + result.getAppName();
+            String url = UpdaterClient.host + "/download/" + result.getAppName();
             ClipboardUtil.setStr(url);
         });
         cancelBtn.setOnAction(event -> ((Stage) parent.getScene().getWindow()).close());

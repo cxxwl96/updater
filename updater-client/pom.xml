@@ -31,26 +31,15 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!--SpringBoot-->
-        <!-- <dependency>
-             <groupId>org.springframework.boot</groupId>
-             <artifactId>spring-boot-starter</artifactId>
-             <exclusions>
-                 <exclusion>
-                     <groupId>org.springframework.boot</groupId>
-                     <artifactId>spring-boot-starter-logging</artifactId>
-                 </exclusion>
-             </exclusions>
-         </dependency>-->
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <!--该插件主要用途：构建可执行的JAR -->
+            <!--<plugin>
+                &lt;!&ndash;该插件主要用途：构建可执行的JAR &ndash;&gt;
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
 </project>

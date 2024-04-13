@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package com.cxxwl96.updater.client;
+package com.cxxwl96.updater.client.model;
 
 /**
- * MainClass
+ * PropertyKeys
  *
  * @author cxxwl96
- * @since 2024/04/13 17:08
+ * @since 2024/04/13 20:55
  */
-public class MainClass {
-    public static void main(String[] args) {
-        UpdaterClient.run(args);
-    }
+public class PropertyKeys {
+    public static final String HOST = "updater.host";
+
+    public static final String APP_PATH = "updater.appPath";
+
+    public static final String APP_NAME = "updater.appName";
+
+    public static final String APP_VERSION = "updater.appVersion";
 }

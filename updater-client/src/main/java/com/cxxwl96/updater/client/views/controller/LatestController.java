@@ -16,7 +16,7 @@
 
 package com.cxxwl96.updater.client.views.controller;
 
-import com.cxxwl96.updater.client.MainClass;
+import com.cxxwl96.updater.client.UpdaterClient;
 import com.cxxwl96.updater.client.model.CheckUpdateResult;
 import com.cxxwl96.updater.client.views.annotations.ViewController;
 import com.cxxwl96.updater.client.views.common.IController;
@@ -63,7 +63,7 @@ public class LatestController implements IController {
         titleLabel.setText(result.getAppName() + titleLabel.getText());
         versionLabel.setText(result.getNewVersion());
         copy.setOnAction(event -> {
-            String url = MainClass.host + "/download/" + result.getAppName();
+            String url = UpdaterClient.host + "/download/" + result.getAppName();
             ClipboardUtil.setStr(url);
         });
         okBtn.setOnAction(event -> ((Stage) parent.getScene().getWindow()).close());

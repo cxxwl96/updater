@@ -19,7 +19,7 @@ package com.cxxwl96.updater.client.views.controller;
 import com.cxxwl96.updater.api.enums.FileOption;
 import com.cxxwl96.updater.api.model.FileModel;
 import com.cxxwl96.updater.api.utils.PrettyUtil;
-import com.cxxwl96.updater.client.MainClass;
+import com.cxxwl96.updater.client.UpdaterClient;
 import com.cxxwl96.updater.client.model.CheckUpdateResult;
 import com.cxxwl96.updater.client.views.annotations.ViewController;
 import com.cxxwl96.updater.client.views.common.IController;
@@ -28,23 +28,27 @@ import com.cxxwl96.updater.client.views.utils.FXMLUtil;
 
 import java.io.File;
 import java.net.URLEncoder;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.io.StreamProgress;
 import cn.hutool.http.HttpUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -72,6 +76,8 @@ public class UpdateController implements IController {
     @FXML
     private ListView<Parent> listBox;
 
+    private Parent parent;
+
     private final CheckUpdateResult result;
 
     public UpdateController(CheckUpdateResult result) {
@@ -80,6 +86,7 @@ public class UpdateController implements IController {
 
     @Override
     public void initialize(Parent parent) {
+        this.parent = parent;
         ExecutorService executor = Executors.newSingleThreadExecutor();
         parent.getScene().getWindow().setOnCloseRequest(event -> {
             if (!executor.isTerminated()) {
@@ -89,7 +96,7 @@ public class UpdateController implements IController {
                 Optional<ButtonType> optional = alert.showAndWait();
                 optional.ifPresent(buttonType -> {
                     if (buttonType == ButtonType.OK) {
-                        System.exit(0);
+                        executor.shutdownNow();
                     } else {
                         event.consume();
                     }
@@ -113,10 +120,10 @@ public class UpdateController implements IController {
 
     private void update() {
         try {
-            String baseUrl = String.format("%s/update/%s/%s", MainClass.host, result.getAppName(), result.getNewVersion());
+            String baseUrl = String.format("%s/update/%s/%s", UpdaterClient.host, result.getAppName(), result.getNewVersion());
             for (int i = 0; i < result.getModifyFileModels().size(); i++) {
                 FileModel fileModel = result.getModifyFileModels().get(i);
-                File file = FileUtil.newFile(MainClass.appRootPath + fileModel.getPath());
+                File file = FileUtil.newFile(UpdaterClient.appPath + fileModel.getPath());
                 // 如果是变更文件则先删除原文件
                 if (fileModel.getOption() == FileOption.DELETE) {
                     try {
@@ -179,12 +186,21 @@ public class UpdateController implements IController {
                 });
             }
         } catch (Exception exception) {
+            if (exception instanceof IORuntimeException && exception.getCause() instanceof ClosedByInterruptException) {
+                log.error("Closed by InterruptException");
+                closeThisStage();
+                return;
+            }
             log.error(exception.getMessage(), exception);
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.ERROR, exception.getMessage());
-                alert.setOnCloseRequest(event -> Platform.exit());
+                alert.setOnCloseRequest(event -> closeThisStage());
                 alert.show();
             });
         }
+    }
+
+    private void closeThisStage() {
+        Optional.ofNullable(this.parent).map(Parent::getScene).map(Scene::getWindow).ifPresent(window -> ((Stage) window).close());
     }
 }
