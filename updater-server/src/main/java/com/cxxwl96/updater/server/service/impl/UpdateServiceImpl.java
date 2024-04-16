@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -252,35 +253,40 @@ public class UpdateServiceImpl implements UpdateService {
     }
 
     private List<FileModel> compareAppFiles(List<FileModel> latestFileModels, List<FileModel> fileModels) {
-        // 用户file
         if (CollUtil.isEmpty(fileModels)) {
             return latestFileModels.stream().map(fileModel -> fileModel.setOption(FileOption.ADD)).collect(Collectors.toList());
         }
-        // 系统file
-        List<FileModel> modifyFileModels = CollUtil.newArrayList(latestFileModels);
+        // 路径转换
+        fileModels = fileModels.stream()
+            .map(fileModel -> fileModel.setPath(fileModel.getPath().replace("\\", "/")))
+            .collect(Collectors.toList());
 
         // 转为map
+        Map<String, FileModel> latestFileModelMap = new HashMap<>();
+        for (FileModel fileModel : latestFileModels) {
+            latestFileModelMap.put(fileModel.getPath(), fileModel);
+        }
         Map<String, FileModel> fileModelMap = new HashMap<>();
         for (FileModel fileModel : fileModels) {
             fileModelMap.put(fileModel.getPath(), fileModel);
         }
-        Map<String, FileModel> latestFileModelMap = new HashMap<>();
-        for (FileModel fileModel : modifyFileModels) {
-            latestFileModelMap.put(fileModel.getPath(), fileModel);
-        }
+
+        ArrayList<FileModel> modifyFileModels = new ArrayList<>();
 
         // 新增、修改
-        for (FileModel latestFileModel : modifyFileModels) {
+        for (FileModel latestFileModel : latestFileModelMap.values()) {
             FileModel file = fileModelMap.get(latestFileModel.getPath());
             if (file == null) {
                 latestFileModel.setOption(FileOption.ADD);
+                modifyFileModels.add(latestFileModel);
             } else if (!latestFileModel.getCrc32().equals(file.getCrc32())) {
                 latestFileModel.setOption(FileOption.OVERWRITE);
+                modifyFileModels.add(latestFileModel);
             }
         }
 
         // 删除
-        for (FileModel fileModel : fileModels) {
+        for (FileModel fileModel : fileModelMap.values()) {
             if (!latestFileModelMap.containsKey(fileModel.getPath())) {
                 fileModel.setOption(FileOption.DELETE);
                 modifyFileModels.add(fileModel);

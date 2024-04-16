@@ -33,6 +33,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.system.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -75,7 +76,7 @@ public class ChecksumUtil {
             if (Constant.CHECKLIST.equals(fileModel.getName())) {
                 continue;
             }
-            String path = fileModel.getPath().substring(file.getPath().length());
+            String path = fileModel.getPath().substring(uniformFilePath(file).length());
             if (path.startsWith("/")) {
                 path = path.substring(1);
             } else if (path.startsWith("./")) {
@@ -148,6 +149,14 @@ public class ChecksumUtil {
     }
 
     private static FileModel newFileModel(File file) {
-        return new FileModel().setOption(null).setPath(file.getPath()).setName(file.getName());
+        return new FileModel().setOption(null).setPath(uniformFilePath(file)).setName(file.getName());
+    }
+
+    public static String uniformFilePath(File file) {
+        String path = file.getPath();
+        if (SystemUtil.getOsInfo().isWindows()) {
+            path = path.replace("\\", "/");
+        }
+        return path;
     }
 }
